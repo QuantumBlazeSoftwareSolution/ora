@@ -14,8 +14,10 @@
 
 ## Administrative Flows
 
-- **Staged Registration**: Business signup is not instant. It follows a wizard flow:
+- **Staged Registration**: Business signup follows a 4-step wizard:
   1.  **Personal Info**: User account creation.
   2.  **Business Info**: Store details.
   3.  **Verification**: Document upload (NIC/BR).
-- **Admin Approval**: A "Human in the loop" approval system. New stores start as `pending` and must be manually approved by an admin before going live.
+  4.  **Subscription**: Select a plan (Dynamic from DB).
+- **Admin Approval**: "Human in the loop" system. Stores are `pending` until approved.
+- **Dynamic Pricing**: Subscriptions are managed via the database (`subscriptions` table), allowing for flexible pricing updates without code changes.

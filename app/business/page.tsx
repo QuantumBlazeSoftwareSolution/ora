@@ -25,7 +25,10 @@ export default function BusinessHome() {
           <Link href="#showcase" className="hover:text-white transition-colors">
             Showcase
           </Link>
-          <Link href="#pricing" className="hover:text-white transition-colors">
+          <Link
+            href="/business/pricing"
+            className="hover:text-white transition-colors"
+          >
             Pricing
           </Link>
         </nav>

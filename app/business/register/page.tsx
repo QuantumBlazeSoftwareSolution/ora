@@ -1,561 +1,581 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Loader2,
   ArrowRight,
-  ArrowLeft,
-  Upload,
   CheckCircle,
+  UploadCloud,
   Store,
   User,
-  FileText,
+  CreditCard,
+  Sparkles,
+  Zap,
+  Crown,
+  Loader2,
 } from "lucide-react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { getSubscriptions } from "@/app/actions/subscriptions";
 import { registerBusiness } from "@/app/actions/onboarding";
-import { motion, AnimatePresence } from "framer-motion";
 
-// --- Types ---
-interface FormData {
-  name?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  storeName?: string;
-  slug?: string;
-  categoryId?: number;
-  categoryName?: string;
-  description?: string;
-  nicUrl?: string;
-  businessRegUrl?: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  icon: string;
-}
-
-// Mock Categories (Replace with DB fetch later)
-const MOCK_CATEGORIES: Category[] = [
-  { id: 1, name: "Gifts & Crafts", slug: "gifts-crafts", icon: "🎁" },
-  { id: 2, name: "Salons & Spas", slug: "salons-spas", icon: "✂️" },
-  { id: 3, name: "Food & Bakery", slug: "food-bakery", icon: "🍰" },
-  { id: 4, name: "Fashion", slug: "fashion", icon: "👗" },
-  { id: 5, name: "Art & Design", slug: "art-design", icon: "🎨" },
-  { id: 6, name: "Other", slug: "other", icon: "✨" },
-];
-
-// --- Schemas ---
-const personalSchema = z.object({
+// --- Validation Schemas --- //
+const step1Schema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Invalid email"),
-  phone: z.string().min(10, "Valid phone number required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  phone: z.string().min(9, "Phone number is required"),
 });
 
-const businessSchema = z.object({
+const step2Schema = z.object({
   storeName: z.string().min(2, "Store name is required"),
-  slug: z
+  storeSlug: z
     .string()
-    .min(3, "Slug must be at least 3 characters")
-    .regex(/^[a-z0-9-]+$/, "Slug: lowercase letters, numbers, hyphens only"),
+    .min(2, "Store URL is required")
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Only lowercase letters, numbers, and dashes allowed"
+    ),
   categoryId: z.number().min(1, "Please select a category"),
-  description: z.string().optional(),
 });
 
-// Mock Doc Schema
-const documentSchema = z.object({
-  nicUrl: z.string().min(1, "National ID is required"),
-  businessRegUrl: z.string().optional(),
-});
+// Mock Step 3 validation (File uploads handled separately in state for MVP)
+const step3Schema = z.object({});
 
-export default function RegistrationWizard() {
+type FormData = z.infer<typeof step1Schema> &
+  z.infer<typeof step2Schema> & {
+    nicUrl?: string;
+    businessRegUrl?: string;
+    subscriptionId: number;
+  };
+
+// --- Mock Categories --- //
+const CATEGORIES = [
+  { id: 1, name: "Food & Dining", icon: "🍔" },
+  { id: 2, name: "Fashion", icon: "👗" },
+  { id: 3, name: "Health & Beauty", icon: "💄" },
+  { id: 4, name: "Electronics", icon: "📱" },
+  { id: 5, name: "Home & Garden", icon: "🏡" },
+  { id: 6, name: "Services", icon: "🛠️" },
+];
+
+export default function RegisterWizard() {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({});
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    async function loadPlans() {
+      try {
+        const { data } = await getSubscriptions();
+        if (data) setPlans(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPlans(false);
+      }
+    }
+    loadPlans();
+  }, []);
+
+  const [formData, setFormData] = useState<Partial<FormData>>({
+    // subscriptionId will be set later
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+  // File State
+  const [nicFile, setNicFile] = useState<File | null>(null);
+  const [brFile, setBrFile] = useState<File | null>(null);
 
   // Forms
-  const personalForm = useForm<z.infer<typeof personalSchema>>({
-    resolver: zodResolver(personalSchema),
-    defaultValues: { name: "", email: "", phone: "", password: "" },
+  const form1 = useForm({
+    resolver: zodResolver(step1Schema),
+    defaultValues: {
+      name: formData.name || "",
+      email: formData.email || "",
+      phone: formData.phone || "",
+    },
+  });
+  const form2 = useForm({
+    resolver: zodResolver(step2Schema),
+    defaultValues: {
+      storeName: formData.storeName || "",
+      storeSlug: formData.storeSlug || "",
+      categoryId: formData.categoryId || 0,
+    },
   });
 
-  const businessForm = useForm<z.infer<typeof businessSchema>>({
-    resolver: zodResolver(businessSchema),
-    defaultValues: { storeName: "", slug: "", description: "" },
-  });
-
-  const docForm = useForm<z.infer<typeof documentSchema>>({
-    resolver: zodResolver(documentSchema),
-    defaultValues: { nicUrl: "", businessRegUrl: "" },
-  });
-
-  // Handlers
-  const onPersonalSubmit = (data: z.infer<typeof personalSchema>) => {
+  const onStep1Submit = (data: any) => {
     setFormData((prev) => ({ ...prev, ...data }));
     setStep(2);
   };
 
-  const onBusinessSubmit = (data: z.infer<typeof businessSchema>) => {
-    const selectedCat = MOCK_CATEGORIES.find((c) => c.id === data.categoryId);
-    setFormData((prev) => ({
-      ...prev,
-      ...data,
-      categoryName: selectedCat?.name,
-    }));
+  const onStep2Submit = (data: any) => {
+    setFormData((prev) => ({ ...prev, ...data }));
     setStep(3);
   };
 
-  const onFinalSubmit = async (data: z.infer<typeof documentSchema>) => {
-    const finalData = { ...formData, ...data };
+  const onStep3Submit = () => {
+    if (!nicFile) {
+      alert("Please upload your NIC/ID copy to proceed."); // MVP Validation
+      return;
+    }
+    // Mock upload URL generation
+    setFormData((prev) => ({
+      ...prev,
+      nicUrl: "https://mock.url/nic.jpg",
+      businessRegUrl: brFile ? "https://mock.url/br.jpg" : undefined,
+    }));
+    setStep(4);
+  };
+
+  const onStep4Submit = async (planId: number) => {
+    setFormData((prev) => ({ ...prev, subscriptionId: planId }));
+
+    // Final Submission Logic
     setIsSubmitting(true);
 
-    // Mock UID
-    const mockUid = "mock-user-" + Date.now();
-    setFormData((prev) => ({ ...prev, ...data }));
+    // Simulate Delay
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const result = await registerBusiness({
-      uid: mockUid,
-      email: finalData.email!,
-      name: finalData.name!,
-      storeName: finalData.storeName!,
-      slug: finalData.slug!,
-      categoryId: finalData.categoryId!,
-      description: finalData.description,
-      nicUrl: finalData.nicUrl!,
-      businessRegUrl: finalData.businessRegUrl,
-    });
+    // Validating all data exists
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.storeName ||
+      !formData.storeSlug ||
+      !formData.categoryId ||
+      !formData.nicUrl
+    ) {
+      alert("Something went wrong. Please refresh and try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const finalData = {
+      uid: "mock-uid-" + Date.now(), // In real app, get from Auth
+      email: formData.email!,
+      name: formData.name!,
+      storeName: formData.storeName!,
+      slug: formData.storeSlug!,
+      categoryId: formData.categoryId!,
+      subscriptionId: planId,
+      nicUrl: formData.nicUrl!,
+      businessRegUrl: formData.businessRegUrl,
+      phone: formData.phone!,
+    };
+
+    const result = await registerBusiness(finalData);
+
+    setIsSubmitting(false);
 
     if (result.success) {
-      setStep(4);
+      setShowSuccessPopup(true);
     } else {
       alert(result.error);
     }
-    setIsSubmitting(false);
-  };
-
-  // Helper for Category Selection
-  const selectCategory = (id: number) => {
-    businessForm.setValue("categoryId", id, { shouldValidate: true });
-  };
-
-  // Helper for "Mock" Upload
-  const handleFileUpload = (field: "nicUrl" | "businessRegUrl") => {
-    // Simulate upload delay
-    setTimeout(() => {
-      docForm.setValue(
-        field,
-        `https://mock-storage.com/${field}-${Date.now()}.jpg`,
-        { shouldValidate: true }
-      );
-    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans selection:bg-primary/20">
-      <div className="max-w-3xl mx-auto">
-        {/* Progress Header */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-heading font-bold text-gray-900 mb-2">
-            Create your Ora Store
-          </h1>
-          <p className="text-gray-500 text-lg">
-            Join Sri Lanka's fastest growing marketplace
-          </p>
-        </div>
-
-        {/* Steps Indicator */}
-        <div className="flex justify-between items-center mb-10 px-8 max-w-lg mx-auto relative">
-          {[
-            { id: 1, label: "Personal", icon: User },
-            { id: 2, label: "Business", icon: Store },
-            { id: 3, label: "Verify", icon: CheckCircle },
-          ].map((s) => (
-            <div key={s.id} className="flex flex-col items-center z-10">
-              <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 border-2 shadow-sm
-                  ${
-                    step >= s.id
-                      ? "bg-primary border-primary text-white shadow-lg shadow-primary/30 scale-110"
-                      : "bg-white border-gray-200 text-gray-400"
-                  }`}
-              >
-                <s.icon size={20} />
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 selection:bg-purple-100">
+      {/* Success Popup */}
+      <AnimatePresence>
+        {showSuccessPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl text-center relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Application Received!
+              </h2>
+              <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+                Your business registration has been successfully submitted. Our
+                team is reviewing your details to ensure the highest quality
+                experience.
+              </p>
+              <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-8">
+                <p className="text-sm text-purple-800 font-medium">
+                  An agent will contact you shortly via WhatsApp or Email.
+                </p>
+              </div>
+              <Link
+                href="/"
+                className="inline-flex w-full h-14 bg-gray-900 text-white font-bold items-center justify-center rounded-xl hover:bg-black transition-all"
+              >
+                Return to Home
+              </Link>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <div className="w-full max-w-2xl">
+        {/* Progress Header */}
+        <div className="mb-8 flex justify-between items-center px-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex gap-2 items-center">
               <div
-                className={`text-sm font-semibold mt-3 ${
-                  step >= s.id ? "text-primary" : "text-gray-400"
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                  step >= i
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-200 text-gray-500"
                 }`}
               >
-                {s.label}
+                {i}
               </div>
+              <div
+                className={`h-1 w-8 rounded-full transition-all ${
+                  step > i ? "bg-purple-600" : "bg-gray-200"
+                }`}
+              ></div>
             </div>
           ))}
-          {/* Progress Bar Line */}
-          <div className="absolute top-[24px] left-0 w-full h-0.5 bg-gray-200 -z-0 hidden md:block">
-            <div
-              className="h-full bg-primary transition-all duration-500"
-              style={{ width: `${((step - 1) / 2) * 100}%` }}
-            />
-          </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] shadow-2xl shadow-gray-200/50 border border-white/50">
-          <AnimatePresence mode="wait">
-            {/* STEP 1: Personal Info */}
-            {step === 1 && (
-              <motion.form
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                onSubmit={personalForm.handleSubmit(onPersonalSubmit)}
-                className="space-y-6"
-              >
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
-                        Full Name
-                      </Label>
-                      <Input
-                        {...personalForm.register("name")}
-                        placeholder="Saman Perera"
-                        className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl"
-                      />
-                      <p className="text-xs text-red-500">
-                        {personalForm.formState.errors.name?.message}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
-                        Phone Number
-                      </Label>
-                      <Input
-                        {...personalForm.register("phone")}
-                        placeholder="0771234567"
-                        className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl"
-                      />
-                      <p className="text-xs text-red-500">
-                        {personalForm.formState.errors.phone?.message}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Email Address
-                    </Label>
-                    <Input
-                      {...personalForm.register("email")}
-                      type="email"
-                      placeholder="saman@example.com"
-                      className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl"
-                    />
-                    <p className="text-xs text-red-500">
-                      {personalForm.formState.errors.email?.message}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Password
-                    </Label>
-                    <Input
-                      {...personalForm.register("password")}
-                      type="password"
-                      className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl"
-                    />
-                    <p className="text-xs text-red-500">
-                      {personalForm.formState.errors.password?.message}
-                    </p>
-                  </div>
+        {/* Form Card */}
+        <div className="bg-white rounded-[2rem] shadow-xl p-8 border border-white/50">
+          {/* Step 1: Identity */}
+          {step === 1 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                  <User size={24} />
                 </div>
-                <Button
+                <h1 className="text-2xl font-bold">Tell us about yourself</h1>
+              </div>
+              <form
+                onSubmit={form1.handleSubmit(onStep1Submit)}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    {...form1.register("name")}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    placeholder="John Doe"
+                  />
+                  {form1.formState.errors.name && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form1.formState.errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    {...form1.register("email")}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    placeholder="john@example.com"
+                  />
+                  {form1.formState.errors.email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form1.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number (WhatsApp)
+                  </label>
+                  <input
+                    {...form1.register("phone")}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    placeholder="077 123 4567"
+                  />
+                  {form1.formState.errors.phone && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form1.formState.errors.phone.message}
+                    </p>
+                  )}
+                </div>
+                <button
                   type="submit"
-                  size="lg"
-                  className="w-full h-14 text-lg rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
+                  className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl mt-4 hover:bg-black transition-all"
                 >
-                  Next Step <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </motion.form>
-            )}
+                  Next Step
+                </button>
+              </form>
+            </motion.div>
+          )}
 
-            {/* STEP 2: Business Info */}
-            {step === 2 && (
-              <motion.form
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                onSubmit={businessForm.handleSubmit(onBusinessSubmit)}
-                className="space-y-8"
+          {/* Step 2: Business Info */}
+          {step === 2 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600">
+                  <Store size={24} />
+                </div>
+                <h1 className="text-2xl font-bold">Your Store details</h1>
+              </div>
+              <form
+                onSubmit={form2.handleSubmit(onStep2Submit)}
+                className="space-y-4"
               >
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Store Name
-                    </Label>
-                    <Input
-                      {...businessForm.register("storeName")}
-                      placeholder="e.g. Saman's Gifts"
-                      className="h-14 text-lg font-medium bg-gray-50 border-gray-200 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all rounded-xl"
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Store Name
+                  </label>
+                  <input
+                    {...form2.register("storeName")}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    placeholder="My Awesome Store"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Store URL
+                  </label>
+                  <div className="flex items-center">
+                    <span className="bg-gray-100 border border-r-0 border-gray-200 px-3 py-3 rounded-l-xl text-gray-500 text-sm">
+                      ora.lk/
+                    </span>
+                    <input
+                      {...form2.register("storeSlug")}
+                      className="flex-1 px-4 py-3 rounded-r-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                      placeholder="my-store"
                     />
-                    <p className="text-xs text-red-500">
-                      {businessForm.formState.errors.storeName?.message}
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-gray-700 font-medium">
-                      Choose a Category
-                    </Label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
-                      {MOCK_CATEGORIES.map((cat) => (
-                        <div
-                          key={cat.id}
-                          onClick={() => selectCategory(cat.id)}
-                          className={`cursor-pointer p-4 rounded-2xl border-2 transition-all text-center flex flex-col items-center gap-2 group
-                            ${
-                              businessForm.watch("categoryId") === cat.id
-                                ? "border-primary bg-primary/5 text-primary"
-                                : "border-gray-100 hover:border-primary/30 hover:bg-gray-50 text-gray-600"
-                            }`}
-                        >
-                          <span className="text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">
-                            {cat.icon}
-                          </span>
-                          <span className="text-sm font-bold">{cat.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-xs text-red-500">
-                      {businessForm.formState.errors.categoryId?.message}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Your Web Address
-                    </Label>
-                    <div className="flex shadow-sm rounded-xl overflow-hidden">
-                      <span className="flex items-center px-5 bg-gray-100 border border-r-0 border-gray-200 text-gray-500 font-medium">
-                        ora.lk/
-                      </span>
-                      <Input
-                        {...businessForm.register("slug")}
-                        placeholder="samans-gifts"
-                        className="h-14 rounded-l-none bg-white border-2 border-gray-100 focus:border-primary focus:ring-0 transition-all font-bold text-primary text-lg"
-                      />
-                    </div>
-                    <p className="text-xs text-red-500">
-                      {businessForm.formState.errors.slug?.message}
-                    </p>
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setStep(1)}
-                    className="text-gray-500 hover:text-gray-900 h-14 px-6"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="flex-1 h-14 text-lg rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
-                  >
-                    Next Step
-                  </Button>
-                </div>
-              </motion.form>
-            )}
-
-            {/* STEP 3: Verification */}
-            {step === 3 && (
-              <motion.form
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                onSubmit={docForm.handleSubmit(onFinalSubmit)}
-                className="space-y-8"
-              >
-                <div className="space-y-6">
-                  <div className="bg-blue-50/80 p-5 rounded-2xl flex items-start gap-4 border border-blue-100">
-                    <div className="bg-blue-100 text-blue-600 p-2 rounded-lg shrink-0">
-                      <FileText size={20} />
-                    </div>
-                    <div className="text-sm text-blue-800 leading-relaxed">
-                      To keep Ora safe and premium, we need to verify your
-                      identity. <br />
-                      <span className="font-semibold block mt-1">
-                        National ID (NIC) is required. Business Registration
-                        (BR) is optional.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* NIC Upload */}
-                  <div className="space-y-3">
-                    <Label className="text-gray-900 font-bold text-lg">
-                      National ID (NIC) <span className="text-red-500">*</span>
-                    </Label>
-                    <div
-                      onClick={() => handleFileUpload("nicUrl")}
-                      className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all group
-                           ${
-                             docForm.watch("nicUrl")
-                               ? "border-green-500 bg-green-50/50"
-                               : "border-gray-200 hover:border-primary/50 hover:bg-primary/5"
-                           }
-                         `}
-                    >
-                      {docForm.watch("nicUrl") ? (
-                        <motion.div
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                        >
-                          <CheckCircle
-                            className="text-green-500 mb-3 mx-auto"
-                            size={40}
-                          />
-                          <span className="block text-green-700 font-bold text-lg">
-                            NIC Uploaded Successfully
-                          </span>
-                          <span className="text-sm text-green-600 mt-1">
-                            Ready to submit
-                          </span>
-                        </motion.div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 bg-gray-100 group-hover:bg-white group-hover:shadow-md rounded-full flex items-center justify-center mb-4 text-gray-400 group-hover:text-primary transition-all duration-300">
-                            <Upload size={28} />
-                          </div>
-                          <span className="block text-gray-900 font-bold text-lg">
-                            Upload NIC Side 1
-                          </span>
-                          <span className="text-sm text-gray-500 mt-2">
-                            JPG, PNG or PDF (Max 5MB)
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <p className="text-xs text-red-500">
-                      {docForm.formState.errors.nicUrl?.message}
-                    </p>
-                  </div>
-
-                  {/* BR Upload */}
-                  <div className="space-y-3 pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <Label className="text-gray-700 font-medium">
-                        Business Registration (BR)
-                      </Label>
-                      <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-                        Optional
-                      </span>
-                    </div>
-                    <div
-                      onClick={() => handleFileUpload("businessRegUrl")}
-                      className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all
-                           ${
-                             docForm.watch("businessRegUrl")
-                               ? "border-green-500 bg-green-50/50"
-                               : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
-                           }
-                         `}
-                    >
-                      {docForm.watch("businessRegUrl") ? (
-                        <div className="flex items-center gap-2 text-green-700 font-medium">
-                          <CheckCircle size={20} />
-                          <span>BR Document Attached</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500 text-sm font-medium">
-                          Click to upload BR Copy (If available)
+                {/* Category Selection Grid */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Select Category
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        type="button"
+                        key={cat.id}
+                        onClick={() => form2.setValue("categoryId", cat.id)}
+                        className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+                          form2.watch("categoryId") === cat.id
+                            ? "border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500"
+                            : "border-gray-200 hover:border-purple-200 hover:bg-gray-50 text-gray-600"
+                        }`}
+                      >
+                        <span className="text-2xl">{cat.icon}</span>
+                        <span className="text-xs font-semibold">
+                          {cat.name}
                         </span>
-                      )}
-                    </div>
+                      </button>
+                    ))}
                   </div>
+                  {form2.formState.errors.categoryId && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {form2.formState.errors.categoryId.message}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setStep(2)}
-                    className="text-gray-500 hover:text-gray-900 h-14 px-6"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="flex-1 h-14 text-lg rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="animate-spin mr-2" />
-                    ) : (
-                      "Submit Application"
-                    )}
-                  </Button>
-                </div>
-              </motion.form>
-            )}
-
-            {/* STEP 4: SUCCESS */}
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-10"
-              >
-                <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-green-100">
-                  <CheckCircle className="w-12 h-12" />
-                </div>
-                <h3 className="text-4xl font-heading font-bold text-gray-900 mb-4">
-                  Application Received!
-                </h3>
-                <p className="text-gray-500 mb-10 max-w-lg mx-auto text-lg leading-relaxed">
-                  Your store <strong>{formData.storeName}</strong> has been
-                  submitted. Our team will verify your NIC and activate your
-                  store within 24 hours.
-                </p>
-                <div className="inline-flex items-center gap-3 bg-blue-50 text-blue-700 px-8 py-4 rounded-2xl text-base font-bold mb-12 border border-blue-100">
-                  <Loader2 size={20} className="animate-spin" />
-                  Status: Pending Approval
-                </div>
-                <Button
-                  size="lg"
-                  className="w-full h-14 text-lg rounded-xl"
-                  onClick={() => (window.location.href = "/")}
+                <button
+                  type="submit"
+                  className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl mt-4 hover:bg-black transition-all"
                 >
-                  Return Home
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                  Next Step
+                </button>
+              </form>
+            </motion.div>
+          )}
 
-        {/* Support Link */}
-        <div className="text-center mt-8">
-          <p className="text-gray-400 text-sm">
-            Need help?{" "}
-            <a href="#" className="text-primary hover:underline">
-              Contact Support
-            </a>
-          </p>
+          {/* Step 3: Verification */}
+          {step === 3 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
+                  <UploadCloud size={24} />
+                </div>
+                <h1 className="text-2xl font-bold">Verification</h1>
+              </div>
+
+              <div className="space-y-6">
+                {/* NIC Upload */}
+                <div className="border border-dashed border-gray-300 rounded-2xl p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                  <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => setNicFile(e.target.files?.[0] || null)}
+                  />
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-600">
+                    <User size={20} />
+                  </div>
+                  <h3 className="font-semibold text-gray-900">
+                    Upload NIC / Passport
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {nicFile
+                      ? nicFile.name
+                      : "Required for identity verification"}
+                  </p>
+                  {nicFile && (
+                    <div className="mt-2 text-green-600 text-sm font-medium flex items-center justify-center gap-1">
+                      <CheckCircle size={14} /> Attached
+                    </div>
+                  )}
+                </div>
+
+                {/* BR Upload */}
+                <div className="border border-dashed border-gray-300 rounded-2xl p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                  <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => setBrFile(e.target.files?.[0] || null)}
+                  />
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-purple-600">
+                    <Store size={20} />
+                  </div>
+                  <h3 className="font-semibold text-gray-900">
+                    Business Registration
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {brFile ? brFile.name : "Optional. Increases trust score."}
+                  </p>
+                  {brFile && (
+                    <div className="mt-2 text-green-600 text-sm font-medium flex items-center justify-center gap-1">
+                      <CheckCircle size={14} /> Attached
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={onStep3Submit}
+                  className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl mt-4 hover:bg-black transition-all"
+                >
+                  Next Step
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 4: Subscription Plan */}
+          {step === 4 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-yellow-50 rounded-2xl flex items-center justify-center text-yellow-600">
+                  <CreditCard size={24} />
+                </div>
+                <h1 className="text-2xl font-bold">Select Subscription</h1>
+              </div>
+
+              <div className="grid gap-4 mb-8">
+                {loadingPlans ? (
+                  <div className="text-center py-10">
+                    <Loader2 className="animate-spin mx-auto" /> Loading
+                    Plans...
+                  </div>
+                ) : (
+                  plans.map((plan) => {
+                    const isGrowth = plan.slug === "growth";
+
+                    return (
+                      <div
+                        key={plan.id}
+                        onClick={() => onStep4Submit(plan.id)}
+                        className={`group border rounded-2xl p-4 cursor-pointer transition-all relative overflow-hidden ${
+                          isGrowth
+                            ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100"
+                            : "border-gray-200 hover:border-black hover:bg-gray-50"
+                        }`}
+                      >
+                        {plan.highlight && (
+                          <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-bl-xl">
+                            Most Popular
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                isGrowth
+                                  ? "bg-purple-100 text-purple-600"
+                                  : plan.slug === "empire"
+                                  ? "bg-black text-white"
+                                  : "bg-gray-100 text-gray-500"
+                              }`}
+                            >
+                              {plan.slug === "growth" ? (
+                                <Zap size={20} />
+                              ) : plan.slug === "empire" ? (
+                                <Crown size={20} />
+                              ) : (
+                                <Sparkles size={20} />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-gray-900">
+                                {plan.name}
+                              </h3>
+                              <p
+                                className={`text-xs ${
+                                  isGrowth ? "text-purple-600" : "text-gray-500"
+                                }`}
+                              >
+                                {plan.billingPeriod === "forever"
+                                  ? "For beginners"
+                                  : plan.slug === "empire"
+                                  ? "Dominate market"
+                                  : "Scale faster"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-lg">
+                              {plan.price === 0
+                                ? "Free"
+                                : `LKR ${plan.price.toLocaleString()}`}
+                            </span>
+                            {plan.price > 0 && (
+                              <span className="text-xs text-gray-500 block">
+                                /month
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {isSubmitting ? (
+                <button
+                  disabled
+                  className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 opacity-80 cursor-wait"
+                >
+                  <Loader2 className="animate-spin" /> Processing Application...
+                </button>
+              ) : (
+                <p className="text-center text-xs text-gray-400">
+                  By selecting a plan, you agree to our Terms of Service.
+                </p>
+              )}
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

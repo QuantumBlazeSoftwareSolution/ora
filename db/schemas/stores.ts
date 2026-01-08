@@ -2,6 +2,7 @@ import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { storeStatusEnum } from "./enum-types";
 import { categories } from "./categories";
+import { subscriptions } from "./subscriptions";
 
 export const stores = pgTable("stores", {
   id: serial("id").primaryKey(),
@@ -15,6 +16,7 @@ export const stores = pgTable("stores", {
   logoUrl: text("logo_url"),
   phoneNumber: text("phone_number"), // WhatsApp Number
   status: storeStatusEnum("status").default("pending").notNull(),
+  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
   themeColor: text("theme_color").default("#000000"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")

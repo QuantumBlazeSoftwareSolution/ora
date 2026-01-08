@@ -23,3 +23,9 @@ export const userRolesEnum = pgEnum("user_roles", userRoles);
 
 export const storeStatus = ["pending", "approved", "rejected"] as const;
 export const storeStatusEnum = pgEnum("store_status", storeStatus);
+
+export const subscriptionPlans = ["starter", "growth", "empire"] as const;
+export const subscriptionPlanEnum = pgEnum(
+  "subscription_plan",
+  subscriptionPlans
+);

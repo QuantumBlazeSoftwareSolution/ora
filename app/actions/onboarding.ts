@@ -75,7 +75,8 @@ export async function registerBusiness(data: {
   name: string;
   storeName: string;
   slug: string;
-  categoryId: number; // Expecting number now
+  categoryId: number;
+  subscriptionId: number; // Changed to ID
   description?: string;
   nicUrl: string; // Required
   businessRegUrl?: string; // Optional
@@ -87,6 +88,7 @@ export async function registerBusiness(data: {
     storeName,
     slug,
     categoryId,
+    subscriptionId,
     description,
     nicUrl,
     businessRegUrl,
@@ -114,6 +116,7 @@ export async function registerBusiness(data: {
         categoryId: categoryId,
         description: description,
         status: "pending",
+        subscriptionId: subscriptionId,
       })
       .returning();
 
@@ -129,7 +132,7 @@ export async function registerBusiness(data: {
     console.error("Registration failed:", error);
     if (error.code === "23505") {
       // Postgres Unique Violation
-      return { success: false, error: "Store URL is already taken." };
+      return { success: false, error: "Store URL is already taken." }; // Basic error handling
     }
     return { success: false, error: "Registration failed. Please try again." };
   }
