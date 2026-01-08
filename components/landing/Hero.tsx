@@ -65,7 +65,7 @@ export function Hero() {
 
           {/* Right Column: Visual */}
           <div className="flex-1 w-full max-w-[500px] md:max-w-none perspective-1000">
-            <div className="relative w-full aspect-[4/5] bg-white rounded-[2.5rem] shadow-2xl border-8 border-gray-900 overflow-hidden transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out-back md:translate-x-10">
+            <div className="relative w-full aspect-4/5 bg-white rounded-[2.5rem] shadow-2xl border-8 border-gray-900 overflow-hidden transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out-back md:translate-x-10">
               {/* Mockup Header */}
               <div className="h-14 bg-gray-50 border-b flex items-center justify-between px-6">
                 <div className="font-bold text-lg">My Gift Shop</div>
@@ -108,7 +108,7 @@ export function Hero() {
             </div>
 
             {/* Decor Elements */}
-            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-purple-200/50 to-pink-200/50 rounded-full blur-3xl" />
+            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-linear-to-tr from-purple-200/50 to-pink-200/50 rounded-full blur-3xl" />
           </div>
         </div>
       </div>

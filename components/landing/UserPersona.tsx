@@ -27,7 +27,7 @@ export function UserPersona() {
   ];
 
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-24 px-6 bg-linear-to-b from-gray-50 to-white">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
           <div className="max-w-xl">
