@@ -7,3 +7,4 @@ export * from "./orders";
 export * from "./order-items";
 export * from "./enum-types";
 export * from "./verifications";
+export * from "./categories";

@@ -51,7 +51,7 @@ export default function BusinessHome() {
             Log In
           </Link>
           <Link
-            href="/signup"
+            href="/business/register"
             className="text-sm font-medium bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-gray-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
             Get Started
@@ -75,7 +75,7 @@ export default function BusinessHome() {
               card required.
             </p>
             <Link
-              href="/signup"
+              href="/business/register"
               className="inline-flex h-16 px-10 rounded-full bg-white text-gray-900 font-bold text-lg items-center justify-center hover:bg-gray-100 transition-all"
             >
               Create My Store Now

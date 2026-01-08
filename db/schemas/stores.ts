@@ -1,6 +1,7 @@
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { storeStatusEnum } from "./enum-types";
+import { categories } from "./categories";
 
 export const stores = pgTable("stores", {
   id: serial("id").primaryKey(),
@@ -10,6 +11,7 @@ export const stores = pgTable("stores", {
   slug: text("slug").unique().notNull(), // ora.lk/slug
   name: text("name").notNull(),
   description: text("description"),
+  categoryId: integer("category_id").references(() => categories.id),
   logoUrl: text("logo_url"),
   phoneNumber: text("phone_number"), // WhatsApp Number
   status: storeStatusEnum("status").default("pending").notNull(),

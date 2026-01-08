@@ -75,12 +75,22 @@ export async function registerBusiness(data: {
   name: string;
   storeName: string;
   slug: string;
-  category: string;
+  categoryId: number; // Expecting number now
   description?: string;
+  nicUrl: string; // Required
+  businessRegUrl?: string; // Optional
 }) {
-  // This function will assume the User is already created in Firebase on the client
-  // and passed here as `uid`.
-  const { uid, email, name, storeName, slug, category, description } = data;
+  const {
+    uid,
+    email,
+    name,
+    storeName,
+    slug,
+    categoryId,
+    description,
+    nicUrl,
+    businessRegUrl,
+  } = data;
 
   try {
     // 1. Create User Record (Merchant)
@@ -92,7 +102,7 @@ export async function registerBusiness(data: {
         name,
         role: "merchant",
       })
-      .onConflictDoNothing(); // Handle restarts gracefully
+      .onConflictDoNothing();
 
     // 2. Create Store (Pending)
     const [newStore] = await db
@@ -100,16 +110,18 @@ export async function registerBusiness(data: {
       .values({
         userId: uid,
         name: storeName,
-        slug: slug, // Use user provided slug
+        slug: slug,
+        categoryId: categoryId,
         description: description,
         status: "pending",
       })
       .returning();
 
-    // 3. Create Verification Placeholder
+    // 3. Create Verification Record
     await db.insert(verifications).values({
       storeId: newStore.id,
-      // documentUrl would come from a separate upload step in real app
+      nicUrl: nicUrl,
+      businessRegUrl: businessRegUrl,
     });
 
     return { success: true, storeId: newStore.id };
