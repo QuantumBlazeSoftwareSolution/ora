@@ -20,6 +20,10 @@ export const services = pgTable("services", {
   price: decimal("price").notNull(),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export type Service = typeof services.$inferSelect;

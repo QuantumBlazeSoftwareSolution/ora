@@ -20,6 +20,10 @@ export const products = pgTable("products", {
   imageUrl: text("image_url"),
   isVisible: boolean("is_visible").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export type Product = typeof products.$inferSelect;

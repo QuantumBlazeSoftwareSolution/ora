@@ -13,6 +13,10 @@ export const stores = pgTable("stores", {
   phoneNumber: text("phone_number"), // WhatsApp Number
   themeColor: text("theme_color").default("#000000"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export type Store = typeof stores.$inferSelect;

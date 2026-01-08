@@ -1,6 +1,7 @@
 import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 import { services } from "./services";
+import { bookingStatusEnum } from "./enum-types";
 
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
@@ -15,9 +16,13 @@ export const bookings = pgTable("bookings", {
   customerEmail: text("customer_email"),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),
-  status: text("status").default("pending"), // pending, confirmed, cancelled, completed
+  status: bookingStatusEnum("status").default("pending"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export type Booking = typeof bookings.$inferSelect;

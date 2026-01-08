@@ -5,3 +5,4 @@ export * from "./services";
 export * from "./bookings";
 export * from "./orders";
 export * from "./order-items";
+export * from "./enum-types";

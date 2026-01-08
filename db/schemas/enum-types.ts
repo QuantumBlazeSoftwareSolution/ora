@@ -1,0 +1,18 @@
+import { pgEnum } from "drizzle-orm/pg-core";
+
+export const bookingStatus = [
+  "pending",
+  "confirmed",
+  "cancelled",
+  "completed",
+] as const;
+export const bookingStatusEnum = pgEnum("booking_status", bookingStatus);
+
+export const orderStatus = [
+  "pending",
+  "paid",
+  "shipped",
+  "delivered",
+  "cancelled",
+] as const;
+export const orderStatusEnum = pgEnum("order_status", orderStatus);

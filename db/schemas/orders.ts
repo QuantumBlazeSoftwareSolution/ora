@@ -7,6 +7,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
+import { orderStatusEnum } from "./enum-types";
 
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
@@ -16,8 +17,12 @@ export const orders = pgTable("orders", {
   customerName: text("customer_name").notNull(),
   customerPhone: text("customer_phone").notNull(),
   totalAmount: decimal("total_amount").notNull(),
-  status: text("status").default("pending"), // pending, paid, shipped, delivered, cancelled
+  status: orderStatusEnum("status").default("pending"), // pending, paid, shipped, delivered, cancelled
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export type Order = typeof orders.$inferSelect;
