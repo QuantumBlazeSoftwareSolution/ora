@@ -1,5 +1,9 @@
 # Ora - Project Master Plan
 
+## 0. Origin & User Vision
+**The Gap:** Sri Lanka has a huge crowd of small business owners (Gift box businesses, Artwork, Salons, Appointment scheduling) who don't know how to navigate the online market, resulting in a lost customer base.
+**The Solution:** A SaaS web application designed specifically to fill this gap, enabling these businesses to easily go online without technical knowledge.
+
 ## 1. Executive Summary
 **Vision:** Democratize digital commerce for Sri Lankan Micro, Small, and Medium Enterprises (MSMEs).
 **Mission:** Empower non-technical business owners (Gift shops, Salons, Artists) to go online in under 10 minutes.
