@@ -15,4 +15,11 @@ export const orderStatus = [
   "delivered",
   "cancelled",
 ] as const;
+
 export const orderStatusEnum = pgEnum("order_status", orderStatus);
+
+export const userRoles = ["admin", "customer", "merchant"] as const;
+export const userRolesEnum = pgEnum("user_roles", userRoles);
+
+export const storeStatus = ["pending", "approved", "rejected"] as const;
+export const storeStatusEnum = pgEnum("store_status", storeStatus);

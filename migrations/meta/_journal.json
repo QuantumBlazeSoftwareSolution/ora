@@ -15,6 +15,13 @@
       "when": 1767894424597,
       "tag": "0001_neat_namorita",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767894977120,
+      "tag": "0002_careless_miek",
+      "breakpoints": true
     }
   ]
 }
