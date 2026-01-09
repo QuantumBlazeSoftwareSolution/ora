@@ -1,4 +1,11 @@
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  integer,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { storeStatusEnum } from "./enum-types";
 import { categories } from "./categories";
@@ -6,7 +13,7 @@ import { subscriptions } from "./subscriptions";
 
 export const stores = pgTable("stores", {
   id: serial("id").primaryKey(),
-  userId: text("user_id")
+  userId: uuid("user_id")
     .references(() => users.id)
     .notNull(),
   slug: text("slug").unique().notNull(), // ora.lk/slug

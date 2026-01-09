@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { BusinessHero } from "@/components/business/BusinessHero";
 import { BusinessFeatures } from "@/components/business/BusinessFeatures";
+import { BusinessVision } from "@/components/business/BusinessVision";
+import { BusinessShowcase } from "@/components/business/BusinessShowcase";
 
 export default function BusinessHome() {
   return (
@@ -55,7 +57,11 @@ export default function BusinessHome() {
         {/* Transition Section */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
+        <BusinessVision />
+
         <BusinessFeatures />
+
+        <BusinessShowcase />
 
         {/* Minimalist CTA */}
         <section className="py-40 px-6 relative overflow-hidden text-center">

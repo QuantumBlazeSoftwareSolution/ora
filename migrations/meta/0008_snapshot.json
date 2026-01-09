@@ -1,6 +1,6 @@
 {
-  "id": "61c15527-daef-484a-9848-6e50ed5528f2",
-  "prevId": "b80af890-3e0c-41e1-8d0b-68fbd25ef0d2",
+  "id": "00bfb5cd-b3b2-43d9-ad5b-333f7ddfefcd",
+  "prevId": "61c15527-daef-484a-9848-6e50ed5528f2",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -259,7 +259,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
