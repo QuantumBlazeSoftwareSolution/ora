@@ -58,12 +58,23 @@ const CATEGORIES = [
   { id: 4, name: "Electronics", icon: "📱" },
   { id: 5, name: "Home & Garden", icon: "🏡" },
   { id: 6, name: "Services", icon: "🛠️" },
+  { id: 7, name: "Art & Crafts", icon: "🎨" },
+  { id: 8, name: "Automotive", icon: "🚗" },
+  { id: 9, name: "Books", icon: "📚" },
+  { id: 10, name: "Toys & Games", icon: "🧸" },
+  { id: 11, name: "Sports", icon: "⚽" },
+  { id: 12, name: "Pets", icon: "🐾" },
 ];
+
+const ITEMS_PER_PAGE = 6;
 
 export default function RegisterWizard() {
   const [step, setStep] = useState(1);
   const [plans, setPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
+
+  // Category Pagination
+  const [categoryPage, setCategoryPage] = useState(0);
 
   useEffect(() => {
     async function loadPlans() {
@@ -330,11 +341,73 @@ export default function RegisterWizard() {
 
                 {/* Category Selection Grid */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Select Category
-                  </label>
+                  <div className="flex justify-between items-end mb-3">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Select Category
+                    </label>
+
+                    {/* Pagination Controls */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCategoryPage(Math.max(0, categoryPage - 1))
+                        }
+                        disabled={categoryPage === 0}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-gray-600"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m15 18-6-6 6-6" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCategoryPage(
+                            Math.min(
+                              Math.ceil(CATEGORIES.length / ITEMS_PER_PAGE) - 1,
+                              categoryPage + 1
+                            )
+                          )
+                        }
+                        disabled={
+                          (categoryPage + 1) * ITEMS_PER_PAGE >=
+                          CATEGORIES.length
+                        }
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-gray-600"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {CATEGORIES.map((cat) => (
+                    {CATEGORIES.slice(
+                      categoryPage * ITEMS_PER_PAGE,
+                      (categoryPage + 1) * ITEMS_PER_PAGE
+                    ).map((cat) => (
                       <button
                         type="button"
                         key={cat.id}
