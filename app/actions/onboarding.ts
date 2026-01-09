@@ -137,3 +137,24 @@ export async function registerBusiness(data: {
     return { success: false, error: "Registration failed. Please try again." };
   }
 }
+
+// Customer Registration
+export async function createCustomer(data: { uid: string; email: string }) {
+  const { uid, email } = data;
+  try {
+    // Check if user exists
+    const existingUser = await db.select().from(users).where(eq(users.id, uid));
+    if (existingUser.length === 0) {
+      await db.insert(users).values({
+        id: uid,
+        email: email,
+        name: email.split("@")[0], // Default name
+        role: "customer",
+      });
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to create customer:", error);
+    return { success: false, error: "Failed to create account." };
+  }
+}

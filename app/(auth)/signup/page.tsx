@@ -1,50 +1,59 @@
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { createStoreFromOnboarding } from '@/app/actions/onboarding';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { createCustomer } from "@/app/actions/onboarding";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [storeName, setStoreName] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // 1. Create User in Firebase
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // 2. Call API to create User and Store in NeonDB
-      const result = await createStoreFromOnboarding({
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // 2. Call API to create Customer in NeonDB
+      const result = await createCustomer({
         uid: userCredential.user.uid,
         email: email,
-        storeName: storeName,
       });
 
       if (!result.success) {
-         throw new Error(result.error);
+        throw new Error(result.error);
       }
-      
-      router.push('/dashboard');
+
+      // Redirect to Home for customers
+      router.push("/");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Error creating account.');
+      setError(err.message || "Error creating account.");
     } finally {
       setLoading(false);
     }
@@ -54,9 +63,9 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Create your Ora Store</CardTitle>
+          <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>
-            Start your 14-day free trial. No credit card required.
+            Join Ora to start shopping from the best local businesses.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,16 +76,6 @@ export default function SignupPage() {
                 {error}
               </div>
             )}
-             <div className="grid gap-2">
-              <Label htmlFor="storeName">Store Name</Label>
-              <Input
-                id="storeName"
-                placeholder="My Awesome Shop"
-                required
-                value={storeName}
-                onChange={(e) => setStoreName(e.target.value)}
-              />
-            </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -99,8 +98,10 @@ export default function SignupPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Create Account
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Sign Up
             </Button>
           </form>
         </CardContent>

@@ -1,35 +1,54 @@
+"use client";
 
-'use client';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle, Loader2 } from "lucide-react";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { db } from "@/db";
+import { users } from "@/db/schemas";
+import { eq } from "drizzle-orm";
+import { getUserRole } from "@/app/actions/auth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard');
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      // Check User Role
+      const role = await getUserRole(cred.user.uid);
+
+      if (role === "merchant") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       console.error(err);
-      setError('Invalid email or password.');
+      setError("Invalid email or password.");
     } finally {
       setLoading(false);
     }
@@ -41,7 +60,7 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl">Login to Ora</CardTitle>
           <CardDescription>
-            Enter your email below to access your dashboard.
+            Enter your email below to access your account.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -66,7 +85,10 @@ export default function LoginPage() {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
-                <Link href="#" className="ml-auto inline-block text-sm underline">
+                <Link
+                  href="#"
+                  className="ml-auto inline-block text-sm underline"
+                >
                   Forgot your password?
                 </Link>
               </div>
@@ -79,7 +101,9 @@ export default function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Login
             </Button>
             <Button variant="outline" className="w-full" type="button">
@@ -88,7 +112,7 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm w-full">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="underline">
               Sign up

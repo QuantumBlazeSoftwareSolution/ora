@@ -35,7 +35,7 @@ export default function BusinessHome() {
 
         <div className="flex gap-6 items-center">
           <Link
-            href="/login"
+            href="/business/login"
             className="text-sm font-medium text-gray-400 hover:text-white transition-colors tracking-wide"
           >
             LOG IN
