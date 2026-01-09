@@ -1,31 +1,35 @@
+"use client";
 
-'use client';
-
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { auth } from '@/lib/firebase';
-import { getServices } from '@/app/actions/services';
-import { Button } from '@/components/ui/button';
-import { Plus, Loader2, Calendar } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { getCurrentUser } from "@/app/actions/auth";
+import { getServices } from "@/app/actions/services";
+import { Button } from "@/components/ui/button";
+import { Plus, Loader2, Calendar } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    async function loadData() {
+      const user = await getCurrentUser();
       if (user) {
-        const data = await getServices(user.uid);
+        const data = await getServices(user.id);
         setServices(data);
-        setLoading(false);
       }
-    });
-    return () => unsubscribe();
+      setLoading(false);
+    }
+    loadData();
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -56,14 +60,16 @@ export default function ServicesPage() {
             <Card key={service.id}>
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-2">
-                   <h3 className="font-semibold text-lg">{service.name}</h3>
-                   <span className="font-bold text-primary">LKR {service.price}</span>
+                  <h3 className="font-semibold text-lg">{service.name}</h3>
+                  <span className="font-bold text-primary">
+                    LKR {service.price}
+                  </span>
                 </div>
                 <div className="text-sm text-muted-foreground mb-4">
-                    {service.durationMin} minutes
+                  {service.durationMin} minutes
                 </div>
-                 <div className="text-sm">
-                    {service.description || 'No description'}
+                <div className="text-sm">
+                  {service.description || "No description"}
                 </div>
               </CardContent>
             </Card>

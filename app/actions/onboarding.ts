@@ -68,23 +68,70 @@ export async function createStoreFromOnboarding(data: {
   }
 }
 
-// New Registration Flow Action
-export async function registerBusiness(data: {
-  uid: string;
+import { hashPassword, createSession } from "@/lib/auth";
+import { randomUUID } from "crypto";
+
+// ... (slugify function remains)
+
+// Customer Registration
+export async function createCustomer(data: {
   email: string;
+  password: string;
+}) {
+  const { email, password } = data;
+  try {
+    // Check if user exists
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
+    if (existingUser.length > 0) {
+      return { success: false, error: "Email already in use." };
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    // Create User
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        email: email,
+        password: hashedPassword,
+        name: email.split("@")[0],
+        role: "customer",
+      })
+      .returning();
+
+    // Create Session
+    await createSession(newUser.id, "customer");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to create customer:", error);
+    return { success: false, error: "Failed to create account." };
+  }
+}
+
+// Business Registration
+export async function registerBusiness(data: {
+  email: string;
+  password?: string; // Optional because we might have created user in Step 1? No, step 1 is just form state.
+  // Actually, registerBusiness is called at the END. So we need password here.
   name: string;
+  phone: string;
   storeName: string;
   slug: string;
   categoryId: number;
-  subscriptionId: number; // Changed to ID
+  subscriptionId: number;
   description?: string;
-  nicUrl: string; // Required
-  businessRegUrl?: string; // Optional
+  nicUrl: string;
+  businessRegUrl?: string;
 }) {
   const {
-    uid,
     email,
+    password,
     name,
+    phone,
     storeName,
     slug,
     categoryId,
@@ -94,23 +141,40 @@ export async function registerBusiness(data: {
     businessRegUrl,
   } = data;
 
+  if (!password) {
+    return { success: false, error: "Password is required." };
+  }
+
   try {
-    // 1. Create User Record (Merchant)
-    await db
+    // 1. Create User Logic (Check email first)
+    // We need to handle the case where user might already exist?
+    // For MVP, let's assume new user only.
+
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
+    if (existingUser.length > 0) {
+      return { success: false, error: "Email already registered." };
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const [newUser] = await db
       .insert(users)
       .values({
-        id: uid,
         email,
+        password: hashedPassword,
         name,
         role: "merchant",
       })
-      .onConflictDoNothing();
+      .returning();
 
     // 2. Create Store (Pending)
     const [newStore] = await db
       .insert(stores)
       .values({
-        userId: uid,
+        userId: newUser.id,
         name: storeName,
         slug: slug,
         categoryId: categoryId,
@@ -127,34 +191,15 @@ export async function registerBusiness(data: {
       businessRegUrl: businessRegUrl,
     });
 
+    // 4. Create Session
+    await createSession(newUser.id, "merchant");
+
     return { success: true, storeId: newStore.id };
   } catch (error: any) {
     console.error("Registration failed:", error);
     if (error.code === "23505") {
-      // Postgres Unique Violation
-      return { success: false, error: "Store URL is already taken." }; // Basic error handling
+      return { success: false, error: "Store URL or Email is already taken." };
     }
     return { success: false, error: "Registration failed. Please try again." };
-  }
-}
-
-// Customer Registration
-export async function createCustomer(data: { uid: string; email: string }) {
-  const { uid, email } = data;
-  try {
-    // Check if user exists
-    const existingUser = await db.select().from(users).where(eq(users.id, uid));
-    if (existingUser.length === 0) {
-      await db.insert(users).values({
-        id: uid,
-        email: email,
-        name: email.split("@")[0], // Default name
-        role: "customer",
-      });
-    }
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to create customer:", error);
-    return { success: false, error: "Failed to create account." };
   }
 }

@@ -11,8 +11,9 @@ import {
 import { userRolesEnum } from "./enum-types";
 
 export const users = pgTable("users", {
-  id: text("id").primaryKey(), // Firebase UID
-  email: text("email").notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  password: text("password"), // Nullable for OAuth later, but required for email/pass
   name: text("name"),
   role: userRolesEnum("role").default("customer").notNull(),
   createdAt: timestamp("created_at").defaultNow(),

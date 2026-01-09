@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,17 +30,10 @@ export default function SignupPage() {
     setError("");
 
     try {
-      // 1. Create User in Firebase
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      // 2. Call API to create Customer in NeonDB
+      // Call server action directly
       const result = await createCustomer({
-        uid: userCredential.user.uid,
         email: email,
+        password: password,
       });
 
       if (!result.success) {

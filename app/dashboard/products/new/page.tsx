@@ -1,23 +1,29 @@
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { auth, storage } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { createProduct } from '@/app/actions/products';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Loader2, Upload, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+// import { auth, storage } from '@/lib/firebase'; // Removed
+// import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Removed
+import { getCurrentUser } from "@/app/actions/auth";
+import { createProduct } from "@/app/actions/products";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Loader2, Upload, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function NewProductPage() {
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState(""); // Text input for now
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -26,28 +32,21 @@ export default function NewProductPage() {
     setLoading(true);
 
     try {
-      const user = auth.currentUser;
+      const user = await getCurrentUser();
       if (!user) return;
 
-      let imageUrl = '';
-      if (imageFile) {
-        const storageRef = ref(storage, `products/${user.uid}/${Date.now()}-${imageFile.name}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
-      }
-
       await createProduct({
-        uid: user.uid,
+        uid: user.id, // Using Drizzle ID
         name,
         price: parseFloat(price),
         description,
         imageUrl,
       });
 
-      router.push('/dashboard/products');
+      router.push("/dashboard/products");
     } catch (error) {
       console.error(error);
-      alert('Failed to create product');
+      alert("Failed to create product");
     } finally {
       setLoading(false);
     }
@@ -55,10 +54,13 @@ export default function NewProductPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <Link href="/dashboard/products" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        href="/dashboard/products"
+        className="flex items-center text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft size={16} className="mr-2" /> Back to Products
       </Link>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Add New Product</CardTitle>
@@ -99,27 +101,22 @@ export default function NewProductPage() {
             </div>
 
             <div className="grid gap-2">
-              <Label>Product Image</Label>
-              <div className="border-2 border-dashed border-input rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-muted/50 cursor-pointer relative">
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
-                />
-                {imageFile ? (
-                  <div className="text-sm font-medium text-primary">{imageFile.name}</div>
-                ) : (
-                  <>
-                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Click or drag image to upload</p>
-                  </>
-                )}
-              </div>
+              <Label htmlFor="imageUrl">Product Image URL</Label>
+              <Input
+                id="imageUrl"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+              <p className="text-xs text-muted-foreground">
+                * Image upload coming soon. Please paste a URL for now.
+              </p>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Create Product
             </Button>
           </form>

@@ -1,22 +1,21 @@
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
-import { createService } from '@/app/actions/services';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createService } from "@/app/actions/services";
+import { getCurrentUser } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function NewServicePage() {
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [duration, setDuration] = useState('60');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [duration, setDuration] = useState("60");
+  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -25,21 +24,21 @@ export default function NewServicePage() {
     setLoading(true);
 
     try {
-      const user = auth.currentUser;
+      const user = await getCurrentUser();
       if (!user) return;
 
       await createService({
-        uid: user.uid,
+        uid: user.id, // Using Drizzle ID
         name,
         price: parseFloat(price),
         durationMin: parseInt(duration),
         description,
       });
 
-      router.push('/dashboard/services');
+      router.push("/dashboard/services");
     } catch (error) {
       console.error(error);
-      alert('Failed to create service');
+      alert("Failed to create service");
     } finally {
       setLoading(false);
     }
@@ -47,10 +46,13 @@ export default function NewServicePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <Link href="/dashboard/services" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        href="/dashboard/services"
+        className="flex items-center text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft size={16} className="mr-2" /> Back to Services
       </Link>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Add New Service</CardTitle>
@@ -69,27 +71,27 @@ export default function NewServicePage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                 <div className="grid gap-2">
-                  <Label htmlFor="price">Price (LKR)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    required
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="2500"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="duration">Duration (Minutes)</Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    required
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                  />
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="price">Price (LKR)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  required
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="2500"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="duration">Duration (Minutes)</Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  required
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="grid gap-2">
@@ -103,7 +105,9 @@ export default function NewServicePage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Create Service
             </Button>
           </form>

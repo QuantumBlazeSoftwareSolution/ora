@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,11 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertCircle, Loader2 } from "lucide-react";
-
-import { db } from "@/db";
-import { users } from "@/db/schemas";
-import { eq } from "drizzle-orm";
-import { getUserRole } from "@/app/actions/auth";
+import { loginAction } from "@/app/actions/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -35,22 +29,21 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
 
-      // Check User Role
-      const role = await getUserRole(cred.user.uid);
+    const result = await loginAction(null, formData);
 
-      if (role === "merchant") {
+    if (result?.error) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      if (result?.role === "merchant") {
         router.push("/dashboard");
       } else {
         router.push("/");
       }
-    } catch (err: any) {
-      console.error(err);
-      setError("Invalid email or password.");
-    } finally {
-      setLoading(false);
     }
   };
 

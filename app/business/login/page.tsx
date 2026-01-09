@@ -3,10 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { Loader2, ArrowRight } from "lucide-react";
-import { getUserRole } from "@/app/actions/auth";
+import { loginAction } from "@/app/actions/auth";
 
 export default function BusinessLoginPage() {
   const [email, setEmail] = useState("");
@@ -20,25 +18,23 @@ export default function BusinessLoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      const role = await getUserRole(cred.user.uid);
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
 
-      if (role === "merchant" || role === "admin") {
+    const result = await loginAction(null, formData);
+
+    if (result?.error) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      if (result?.role === "merchant" || result?.role === "admin") {
         router.push("/dashboard");
       } else {
-        // If a customer tries to login here, what do we do?
-        // Maybe allow it but redirect to home? Or deny?
-        // For now, let's redirect them to home with a note, or just let them in if they have a merchant account too?
-        // Assuming strict separation:
-        setError("This account is not authorized for business access.");
-        await auth.signOut();
+        setError("Access denied. Not a merchant account.");
+        setLoading(false);
+        // Optionally call logoutAction here to clear session
       }
-    } catch (err: any) {
-      console.error(err);
-      setError("Invalid email or password.");
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -50,6 +50,13 @@
       "when": 1767898103074,
       "tag": "0006_long_mindworm",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1767956406652,
+      "tag": "0007_minor_mercury",
+      "breakpoints": true
     }
   ]
 }
