@@ -131,52 +131,24 @@ export default function RegisterWizard() {
     setStep(4);
   };
 
-  const onStep4Submit = async (planId: number) => {
-    setFormData((prev) => ({ ...prev, subscriptionId: planId }));
+  // State for Step 4 Selection
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+
+  const handleSubmitRegistration = async () => {
+    if (!selectedPlanId) return;
 
     // Final Submission Logic
     setIsSubmitting(true);
 
-    // Simulate Delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Simulate Network Request
+    await new Promise((resolve) => setTimeout(resolve, 2500));
 
-    // Validating all data exists
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.storeName ||
-      !formData.storeSlug ||
-      !formData.categoryId ||
-      !formData.nicUrl
-    ) {
-      alert("Something went wrong. Please refresh and try again.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const finalData = {
-      uid: "mock-uid-" + Date.now(), // In real app, get from Auth
-      email: formData.email!,
-      name: formData.name!,
-      storeName: formData.storeName!,
-      slug: formData.storeSlug!,
-      categoryId: formData.categoryId!,
-      subscriptionId: planId,
-      nicUrl: formData.nicUrl!,
-      businessRegUrl: formData.businessRegUrl,
-      phone: formData.phone!,
-    };
-
-    const result = await registerBusiness(finalData);
-
+    // Fake Success
     setIsSubmitting(false);
+    setShowSuccessPopup(true);
 
-    if (result.success) {
-      setShowSuccessPopup(true);
-    } else {
-      alert(result.error);
-    }
+    // NOTE: Backend integration disabled for now as requested.
+    // const result = await registerBusiness(finalData);
   };
 
   return (
@@ -198,13 +170,13 @@ export default function RegisterWizard() {
                 Application Received!
               </h2>
               <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-                Your business registration has been successfully submitted. Our
-                team is reviewing your details to ensure the highest quality
-                experience.
+                Welcome to the future of commerce. Your application has been
+                successfully submitted and is now being processed by our team.
               </p>
               <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-8">
                 <p className="text-sm text-purple-800 font-medium">
-                  An agent will contact you shortly via WhatsApp or Email.
+                  One of our agents will contact you shortly via WhatsApp to
+                  verify your store details.
                 </p>
               </div>
               <Link
@@ -491,15 +463,18 @@ export default function RegisterWizard() {
                 ) : (
                   plans.map((plan) => {
                     const isGrowth = plan.slug === "growth";
+                    const isSelected = selectedPlanId === plan.id;
 
                     return (
                       <div
                         key={plan.id}
-                        onClick={() => onStep4Submit(plan.id)}
+                        onClick={() => setSelectedPlanId(plan.id)}
                         className={`group border rounded-2xl p-4 cursor-pointer transition-all relative overflow-hidden ${
-                          isGrowth
-                            ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100"
-                            : "border-gray-200 hover:border-black hover:bg-gray-50"
+                          isSelected
+                            ? "border-2 border-black bg-gray-50 shadow-xl ring-1 ring-black/5"
+                            : isGrowth
+                            ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100 opacity-90"
+                            : "border-gray-200 hover:border-black hover:bg-gray-50 opacity-90"
                         }`}
                       >
                         {plan.highlight && (
@@ -543,17 +518,34 @@ export default function RegisterWizard() {
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <span className="font-bold text-lg">
-                              {plan.price === 0
-                                ? "Free"
-                                : `LKR ${plan.price.toLocaleString()}`}
-                            </span>
-                            {plan.price > 0 && (
-                              <span className="text-xs text-gray-500 block">
-                                /month
+
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <span className="font-bold text-lg">
+                                {plan.price === 0
+                                  ? "Free"
+                                  : `LKR ${plan.price.toLocaleString()}`}
                               </span>
-                            )}
+                              {plan.price > 0 && (
+                                <span className="text-xs text-gray-500 block">
+                                  /month
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                isSelected
+                                  ? "border-black bg-black text-white"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {isSelected && (
+                                <CheckCircle
+                                  size={14}
+                                  className="fill-white text-black"
+                                />
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -562,18 +554,35 @@ export default function RegisterWizard() {
                 )}
               </div>
 
-              {isSubmitting ? (
-                <button
-                  disabled
-                  className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 opacity-80 cursor-wait"
-                >
-                  <Loader2 className="animate-spin" /> Processing Application...
-                </button>
-              ) : (
-                <p className="text-center text-xs text-gray-400">
-                  By selecting a plan, you agree to our Terms of Service.
+              <div className="mt-8 border-t pt-6 bg-white z-10">
+                {isSubmitting ? (
+                  <button
+                    disabled
+                    className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 opacity-80 cursor-wait"
+                  >
+                    <Loader2 className="animate-spin" /> Process Registration...
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmitRegistration}
+                    disabled={!selectedPlanId}
+                    className={`w-full h-14 font-bold rounded-xl flex items-center justify-center gap-2 transition-all ${
+                      selectedPlanId
+                        ? "bg-black text-white hover:scale-[1.02] shadow-xl shadow-black/20"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {selectedPlanId
+                      ? "Register Your Business"
+                      : "Select a Plan to Continue"}
+                    {selectedPlanId && <ArrowRight size={18} />}
+                  </button>
+                )}
+                <p className="text-center text-xs text-gray-400 mt-3">
+                  By registering, you agree to our Terms of Service & Privacy
+                  Policy.
                 </p>
-              )}
+              </div>
             </motion.div>
           )}
         </div>
