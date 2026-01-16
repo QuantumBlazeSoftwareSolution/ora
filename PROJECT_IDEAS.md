@@ -24,6 +24,10 @@
 - **Account Minting**:
   - When approved, the system generates the `User` and `Store` records.
   - Initial login credentials are generated/sent.
+- **Platform Control**:
+  - **Category Manager**: Dynamic control over business categories.
+  - **Deep Analytics**: Tracking every metric possible (Revenue, Growth, Usage).
+  - **Reporting**: Exportable data for business intelligence.
 
 ## Dashboard Experience
 

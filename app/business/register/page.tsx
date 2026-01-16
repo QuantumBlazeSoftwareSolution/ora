@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSubscriptions } from "@/app/actions/subscriptions";
 import { submitBusinessApplication } from "@/app/actions/applications";
+import { getCategories } from "@/app/actions/categories";
 
 // --- Validation Schemas --- //
 const step1Schema = z.object({
@@ -51,22 +52,6 @@ type FormData = z.infer<typeof step1Schema> &
     subscriptionId: number;
   };
 
-// --- Mock Categories --- //
-const CATEGORIES = [
-  { id: 1, name: "Food & Dining", icon: "🍔" },
-  { id: 2, name: "Fashion", icon: "👗" },
-  { id: 3, name: "Health & Beauty", icon: "💄" },
-  { id: 4, name: "Electronics", icon: "📱" },
-  { id: 5, name: "Home & Garden", icon: "🏡" },
-  { id: 6, name: "Services", icon: "🛠️" },
-  { id: 7, name: "Art & Crafts", icon: "🎨" },
-  { id: 8, name: "Automotive", icon: "🚗" },
-  { id: 9, name: "Books", icon: "📚" },
-  { id: 10, name: "Toys & Games", icon: "🧸" },
-  { id: 11, name: "Sports", icon: "⚽" },
-  { id: 12, name: "Pets", icon: "🐾" },
-];
-
 const ITEMS_PER_PAGE = 6;
 
 export default function RegisterWizard() {
@@ -75,21 +60,33 @@ export default function RegisterWizard() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
 
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
   // Category Pagination
   const [categoryPage, setCategoryPage] = useState(0);
 
   useEffect(() => {
-    async function loadPlans() {
+    async function loadData() {
       try {
-        const { data } = await getSubscriptions();
-        if (data) setPlans(data);
+        const plansRes = await getSubscriptions();
+        if (plansRes.data) setPlans(plansRes.data);
       } catch (err) {
         console.error(err);
       } finally {
         setLoadingPlans(false);
       }
+
+      try {
+        const catRes = await getCategories();
+        if (catRes.success && catRes.data) setCategories(catRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingCategories(false);
+      }
     }
-    loadPlans();
+    loadData();
   }, []);
 
   const [formData, setFormData] = useState<Partial<FormData>>({
@@ -391,14 +388,14 @@ export default function RegisterWizard() {
                         onClick={() =>
                           setCategoryPage(
                             Math.min(
-                              Math.ceil(CATEGORIES.length / ITEMS_PER_PAGE) - 1,
+                              Math.ceil(categories.length / ITEMS_PER_PAGE) - 1,
                               categoryPage + 1
                             )
                           )
                         }
                         disabled={
                           (categoryPage + 1) * ITEMS_PER_PAGE >=
-                          CATEGORIES.length
+                          categories.length
                         }
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-gray-600"
                       >
@@ -419,28 +416,39 @@ export default function RegisterWizard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {CATEGORIES.slice(
-                      categoryPage * ITEMS_PER_PAGE,
-                      (categoryPage + 1) * ITEMS_PER_PAGE
-                    ).map((cat) => (
-                      <button
-                        type="button"
-                        key={cat.id}
-                        onClick={() => form2.setValue("categoryId", cat.id)}
-                        className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
-                          form2.watch("categoryId") === cat.id
-                            ? "border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500"
-                            : "border-gray-200 hover:border-purple-200 hover:bg-gray-50 text-gray-600"
-                        }`}
-                      >
-                        <span className="text-2xl">{cat.icon}</span>
-                        <span className="text-xs font-semibold">
-                          {cat.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+                  {loadingCategories ? (
+                    <div className="py-10 text-center text-gray-500 text-sm flex flex-col items-center">
+                      <Loader2 className="animate-spin mb-2" size={20} />
+                      Loading Categories...
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {categories
+                        .slice(
+                          categoryPage * ITEMS_PER_PAGE,
+                          (categoryPage + 1) * ITEMS_PER_PAGE
+                        )
+                        .map((cat) => (
+                          <button
+                            type="button"
+                            key={cat.id}
+                            onClick={() => form2.setValue("categoryId", cat.id)}
+                            className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+                              form2.watch("categoryId") === cat.id
+                                ? "border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500"
+                                : "border-gray-200 hover:border-purple-200 hover:bg-gray-50 text-gray-600"
+                            }`}
+                          >
+                            <span className="text-2xl">
+                              {cat.imageUrl || "📦"}
+                            </span>
+                            <span className="text-xs font-semibold text-center">
+                              {cat.name}
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  )}
                   {form2.formState.errors.categoryId && (
                     <p className="text-red-500 text-sm mt-2">
                       {form2.formState.errors.categoryId.message}
