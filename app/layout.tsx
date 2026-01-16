@@ -1,14 +1,15 @@
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Ora | Business Online Made Simple",
-  description: "The easiest way for Sri Lankan businesses to start selling online.",
+  description:
+    "The easiest way for Sri Lankan businesses to start selling online.",
 };
 
 export default function RootLayout({
@@ -18,8 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.className, "min-h-screen bg-background antialiased")}>
+      <body
+        className={cn(
+          inter.className,
+          "min-h-screen bg-background antialiased"
+        )}
+      >
         {children}
+        <Toaster />
       </body>
     </html>
   );

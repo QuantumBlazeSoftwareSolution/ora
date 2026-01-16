@@ -1,4 +1,4 @@
-"use client"; // Should be server component really but needs interactivity? No, Page is Server, Form is Client.
+// Server Component
 
 import { getCurrentUser } from "@/app/actions/auth";
 import { getStoreByUserId, updateStore } from "@/app/actions/store";
