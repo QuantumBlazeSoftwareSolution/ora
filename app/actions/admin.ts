@@ -95,3 +95,48 @@ export async function approveApplication(applicationId: number) {
     return { success: false, error: "Approval failed." };
   }
 }
+
+export async function getAdminStats() {
+  const allUsers = await db.select().from(users);
+  const allStores = await db.select().from(stores);
+  const allApps = await db.select().from(businessApplications);
+
+  // Revenue Estimate (Simple: Active Store * Subscription Price)
+  // TODO: In real world, query orders or subscription payments table
+  let estimatedRevenue = 0;
+
+  const activeStores = await db.query.stores.findMany({
+    where: eq(stores.status, "approved"),
+    with: {
+      subscription: true,
+    },
+  });
+
+  activeStores.forEach((store) => {
+    if (store.subscription) {
+      estimatedRevenue += store.subscription.price;
+    }
+  });
+
+  return {
+    totalRevenue: estimatedRevenue,
+    activeStores: activeStores.length,
+    pendingApps: allApps.filter((a) => a.status === "pending").length,
+    totalUsers: allUsers.length,
+    recentApps: allApps.slice(0, 5), // Most recent 5
+  };
+}
+
+export async function getAllUsers() {
+  return await db.select().from(users).orderBy(desc(users.createdAt));
+}
+
+export async function getAllStores() {
+  return await db.query.stores.findMany({
+    orderBy: desc(stores.createdAt),
+    with: {
+      user: true,
+      subscription: true,
+    },
+  });
+}
