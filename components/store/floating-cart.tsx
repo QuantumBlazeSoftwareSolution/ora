@@ -3,7 +3,6 @@
 
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag } from 'lucide-react';
 // Sheet import removed
 // I will use a simple fixed bottom bar if sheet is too complex to setup manually right now.
 // A Sheet is better for UX. Cleanest is a Bottom Bar that expands.

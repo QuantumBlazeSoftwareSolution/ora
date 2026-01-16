@@ -41,6 +41,7 @@ export async function getSession() {
     });
     return payload;
   } catch (err) {
+    console.error(`JWT Verification Failed: ${err}`);
     return null;
   }
 }
