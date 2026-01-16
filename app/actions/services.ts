@@ -45,7 +45,7 @@ export async function createService(data: {
       description,
     });
 
-    revalidatePath("/dashboard/services");
+    revalidatePath("/business/dashboard/services");
     return { success: true };
   } catch (error) {
     console.error("Create Service Error:", error);

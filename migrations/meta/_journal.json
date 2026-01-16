@@ -64,6 +64,13 @@
       "when": 1767957000000,
       "tag": "0009_add_password_column",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1768574141682,
+      "tag": "0010_graceful_maginty",
+      "breakpoints": true
     }
   ]
 }

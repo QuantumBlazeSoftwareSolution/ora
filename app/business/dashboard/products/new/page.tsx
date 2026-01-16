@@ -43,7 +43,7 @@ export default function NewProductPage() {
         imageUrl,
       });
 
-      router.push("/dashboard/products");
+      router.push("/business/dashboard/products");
     } catch (error) {
       console.error(error);
       alert("Failed to create product");
@@ -55,7 +55,7 @@ export default function NewProductPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
-        href="/dashboard/products"
+        href="/business/dashboard/products"
         className="flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={16} className="mr-2" /> Back to Products

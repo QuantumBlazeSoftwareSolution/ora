@@ -27,11 +27,16 @@
 - **Service Menu**: List services with Duration and Price.
 - **Booking Flow**: Customers select services -> "Request Booking" via WhatsApp (MVP) or dedicated Calendar logic (Phase 2).
 
-### C. Admin Dashboard
+### C. Admin Dashboard ("The Command Center")
 
-- **Analytics**: View Total Revenue, Active Products, Service Counts.
-- **Management**: CRUD operations for Products and Services.
-- **Settings**: Manage Store Name, Logo, WhatsApp Number.
+- **Analytics**: Real-time view of Profile Views, WhatsApp Clicks, Booking Requests.
+- **Product Hub**: Add/Edit/Delete products with "In Stock" toggles.
+- **Service Suite**: Manage Service Menu, Durations, and Pricing.
+- **Booking Manager**: Calendar/List view of upcoming appointments (for Salons/Tutors).
+- **Store Settings**:
+  - **Profile**: Logo, Cover Image, Bio, Contact Info.
+  - **Hours**: Operating hours configuration.
+  - **Subscription**: View current plan and upgrade options.
 
 ## 3. Technology Stack
 
@@ -98,12 +103,12 @@
 
 ## 5. Key Workflows
 
-### Onboarding
+### Onboarding (Revised)
 
-1.  User signs up (Firebase).
-2.  Server Action (`createStoreFromOnboarding`) runs.
-3.  Checks if User exists in Postgres -> Creates if not.
-4.  Creates a new Store entry with a unique Slug.
+1.  **Application**: User fills "Business Registration" form (No password needed). Data saved to `business_applications`.
+2.  **Review**: Admin views application in `/ora-owners` dashboard.
+3.  **Approval**: Admin approves application. System creates `User` (Merchant) + `Store`. System generates credentials (or invite link).
+4.  **Live**: Store becomes active.
 
 ### Checkout Flow
 

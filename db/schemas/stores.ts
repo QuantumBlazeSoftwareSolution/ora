@@ -6,6 +6,7 @@ import {
   integer,
   uuid,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { storeStatusEnum } from "./enum-types";
 import { categories } from "./categories";
@@ -31,6 +32,21 @@ export const stores = pgTable("stores", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+
+export const storesRelations = relations(stores, ({ one }) => ({
+  user: one(users, {
+    fields: [stores.userId],
+    references: [users.id],
+  }),
+  category: one(categories, {
+    fields: [stores.categoryId],
+    references: [categories.id],
+  }),
+  subscription: one(subscriptions, {
+    fields: [stores.subscriptionId],
+    references: [subscriptions.id],
+  }),
+}));
 
 export type Store = typeof stores.$inferSelect;
 export type StoreInsert = typeof stores.$inferInsert;

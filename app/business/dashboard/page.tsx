@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getCurrentUser } from "@/app/actions/auth";
 import { getDashboardStats } from "@/app/actions/analytics";
 import { Loader2 } from "lucide-react";
@@ -58,7 +59,20 @@ export default function DashboardPage() {
           Your store is ready. Start by adding your first product or setting up
           your services.
         </p>
-        <div className="flex gap-4">{/* Buttons will go here */}</div>
+        <div className="flex gap-4">
+          <Link
+            href="/business/dashboard/products/new"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            Add Product
+          </Link>
+          <Link
+            href="/business/dashboard/services/new"
+            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/80 transition-colors"
+          >
+            Setup Services
+          </Link>
+        </div>
       </div>
     </div>
   );

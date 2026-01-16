@@ -50,7 +50,7 @@ export async function createProduct(data: {
       imageUrl,
     });
 
-    revalidatePath("/dashboard/products");
+    revalidatePath("/business/dashboard/products");
     return { success: true };
   } catch (error) {
     console.error("Create Product Error:", error);

@@ -18,8 +18,9 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getSubscriptions } from "@/app/actions/subscriptions";
-import { registerBusiness } from "@/app/actions/onboarding";
+import { submitBusinessApplication } from "@/app/actions/applications";
 
 // --- Validation Schemas --- //
 const step1Schema = z.object({
@@ -69,6 +70,7 @@ const CATEGORIES = [
 const ITEMS_PER_PAGE = 6;
 
 export default function RegisterWizard() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [plans, setPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -151,15 +153,26 @@ export default function RegisterWizard() {
     // Final Submission Logic
     setIsSubmitting(true);
 
-    // Simulate Network Request
-    await new Promise((resolve) => setTimeout(resolve, 2500));
+    // Real Backend Request (Application)
+    const result = await submitBusinessApplication({
+      name: formData.name!,
+      email: formData.email!,
+      phone: formData.phone!,
+      storeName: formData.storeName!,
+      storeSlug: formData.storeSlug!,
+      categoryId: formData.categoryId!,
+      subscriptionId: selectedPlanId,
+      nicUrl: formData.nicUrl!,
+      businessRegUrl: formData.businessRegUrl,
+    });
 
-    // Fake Success
     setIsSubmitting(false);
-    setShowSuccessPopup(true);
 
-    // NOTE: Backend integration disabled for now as requested.
-    // const result = await registerBusiness(finalData);
+    if (result.success) {
+      setShowSuccessPopup(true);
+    } else {
+      alert(result.error || "Application failed");
+    }
   };
 
   return (
@@ -181,8 +194,9 @@ export default function RegisterWizard() {
                 Application Received!
               </h2>
               <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-                Welcome to the future of commerce. Your application has been
-                successfully submitted and is now being processed by our team.
+                Welcome to the future of commerce. Your **Application** has been
+                received. Our team will review your details and approve your
+                account shortly.
               </p>
               <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-8">
                 <p className="text-sm text-purple-800 font-medium">
@@ -190,12 +204,12 @@ export default function RegisterWizard() {
                   verify your store details.
                 </p>
               </div>
-              <Link
-                href="/"
+              <button
+                onClick={() => router.push("/dashboard")}
                 className="inline-flex w-full h-14 bg-gray-900 text-white font-bold items-center justify-center rounded-xl hover:bg-black transition-all"
               >
-                Return to Home
-              </Link>
+                Go to Dashboard
+              </button>
             </motion.div>
           </div>
         )}
@@ -273,19 +287,21 @@ export default function RegisterWizard() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number (WhatsApp)
-                  </label>
-                  <input
-                    {...form1.register("phone")}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                    placeholder="077 123 4567"
-                  />
-                  {form1.formState.errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {form1.formState.errors.phone.message}
-                    </p>
-                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number (WhatsApp)
+                    </label>
+                    <input
+                      {...form1.register("phone")}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                      placeholder="077 123 4567"
+                    />
+                    {form1.formState.errors.phone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {form1.formState.errors.phone.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <button
                   type="submit"

@@ -9,15 +9,21 @@ import {
   Calendar,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
 
 const sidebarItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
-  { href: "/dashboard/products", icon: ShoppingBag, label: "Products" },
-  { href: "/dashboard/bookings", icon: Calendar, label: "Bookings" },
-  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
+  { href: "/business/dashboard", icon: LayoutDashboard, label: "Overview" },
+  {
+    href: "/business/dashboard/products",
+    icon: ShoppingBag,
+    label: "Products",
+  },
+  { href: "/business/dashboard/services", icon: Sparkles, label: "Services" },
+  { href: "/business/dashboard/bookings", icon: Calendar, label: "Bookings" },
+  { href: "/business/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 
 export function Sidebar() {

@@ -35,7 +35,7 @@ export default function NewServicePage() {
         description,
       });
 
-      router.push("/dashboard/services");
+      router.push("/business/dashboard/services");
     } catch (error) {
       console.error(error);
       alert("Failed to create service");
@@ -47,7 +47,7 @@ export default function NewServicePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
-        href="/dashboard/services"
+        href="/business/dashboard/services"
         className="flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={16} className="mr-2" /> Back to Services

@@ -14,10 +14,19 @@
 
 ## Administrative Flows
 
-- **Staged Registration**: Business signup follows a 4-step wizard:
-  1.  **Personal Info**: User account creation.
-  2.  **Business Info**: Store details.
-  3.  **Verification**: Document upload (NIC/BR).
-  4.  **Subscription**: Select a plan (Dynamic from DB).
-- **Admin Approval**: "Human in the loop" system. Stores are `pending` until approved.
-- **Dynamic Pricing**: Subscriptions are managed via the database (`subscriptions` table), allowing for flexible pricing updates without code changes.
+- **Application Queue**:
+  - Prospective merchants submit an **Application** (Details + verification docs).
+  - No user account is created yet.
+  - Pending applications sit in `business_applications` table.
+- **The "Ora Owners" Panel (`/ora-owners`)**:
+  - Super Admin dashboard.
+  - Review applications -> One-click "Approve & Mint Account".
+- **Account Minting**:
+  - When approved, the system generates the `User` and `Store` records.
+  - Initial login credentials are generated/sent.
+
+## Dashboard Experience
+
+- **"Cockpit" Feel**: The dashboard should feel like a high-end tool. Dark mode default, crisp typography, data density without clutter.
+- **Unified Control**: Products, Services, and Settings all accessible from one sidebar.
+- **Live Preview**: When editing the store profile, offer a button to "View Live Store".
