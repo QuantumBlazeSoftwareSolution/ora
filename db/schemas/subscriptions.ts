@@ -1,14 +1,14 @@
 import {
   pgTable,
-  serial,
   text,
   integer,
   boolean,
   jsonb,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export const subscriptions = pgTable("subscriptions", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(), // Starter, Growth, Empire
   slug: text("slug").unique().notNull(), // starter, growth, empire
   price: integer("price").notNull().default(0),

@@ -61,7 +61,7 @@ export async function getApplications(): Promise<
 // Actually, 'getVideoTableColumns' is not a real function. I will use the table objects directly in select.
 
 // --- Approve Application ---
-export async function approveApplication(applicationId: number) {
+export async function approveApplication(applicationId: string) {
   try {
     const app = await db.query.businessApplications.findFirst({
       where: eq(businessApplications.id, applicationId),
@@ -181,7 +181,7 @@ export async function approveApplication(applicationId: number) {
 }
 
 // --- Reject Application ---
-export async function rejectApplication(applicationId: number, reason: string) {
+export async function rejectApplication(applicationId: string, reason: string) {
   try {
     await db
       .update(businessApplications)
@@ -196,7 +196,7 @@ export async function rejectApplication(applicationId: number, reason: string) {
 }
 
 // --- Delete Application ---
-export async function deleteApplication(applicationId: number) {
+export async function deleteApplication(applicationId: string) {
   try {
     await db
       .delete(businessApplications)

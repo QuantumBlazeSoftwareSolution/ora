@@ -1,9 +1,9 @@
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 
 export const verifications = pgTable("verifications", {
-  id: serial("id").primaryKey(),
-  storeId: integer("store_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeId: uuid("store_id")
     .references(() => stores.id)
     .notNull(),
   nicUrl: text("nic_url").notNull(), // National ID is required
