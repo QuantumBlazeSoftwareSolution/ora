@@ -8,15 +8,17 @@ export default async function StoresPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Stores</h1>
-        <p className="text-neutral-400">
+        <h1 className="text-3xl font-heading font-bold tracking-tight text-foreground">
+          Stores
+        </h1>
+        <p className="text-muted-foreground">
           Active businesses and their performance.
         </p>
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
-        <table className="w-full text-left text-sm text-neutral-400">
-          <thead className="bg-neutral-950/50 text-neutral-200 uppercase font-medium text-xs">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <table className="w-full text-left text-sm text-muted-foreground">
+          <thead className="bg-muted/50 text-foreground uppercase font-medium text-xs">
             <tr>
               <th className="px-6 py-4">Store Profile</th>
               <th className="px-6 py-4">Owner</th>
@@ -25,26 +27,30 @@ export default async function StoresPage() {
               <th className="px-6 py-4 text-right">View</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-800">
+          <tbody className="divide-y divide-border">
             {stores.map((store) => (
               <tr
                 key={store.id}
-                className="hover:bg-neutral-800/50 transition-colors"
+                className="hover:bg-muted/50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <div className="font-medium text-white">{store.name}</div>
-                  <div className="text-xs font-mono text-blue-400">
+                  <div className="font-medium text-foreground">
+                    {store.name}
+                  </div>
+                  <div className="text-xs font-mono text-primary">
                     ora.lk/{store.slug}
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-white">{store.user?.name}</div>
-                  <div className="text-xs">{store.user?.email}</div>
+                  <div className="text-foreground">{store.user?.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {store.user?.email}
+                  </div>
                 </td>
                 <td className="px-6 py-4 capitalize">
                   {store.subscription?.name || "Free"}
                   {store.subscription && (
-                    <span className="ml-2 text-xs text-neutral-500">
+                    <span className="ml-2 text-xs text-muted-foreground">
                       ({store.subscription.price} LKR)
                     </span>
                   )}
@@ -53,10 +59,10 @@ export default async function StoresPage() {
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       store.status === "approved"
-                        ? "bg-green-500/10 text-green-500"
+                        ? "bg-green-500/10 text-green-600"
                         : store.status === "pending"
-                        ? "bg-yellow-500/10 text-yellow-500"
-                        : "bg-red-500/10 text-red-500"
+                        ? "bg-yellow-500/10 text-yellow-600"
+                        : "bg-destructive/10 text-destructive"
                     }`}
                   >
                     {store.status === "approved" ? "Active" : store.status}
@@ -65,7 +71,7 @@ export default async function StoresPage() {
                 <td className="px-6 py-4 text-right">
                   <Link
                     href={`/${store.slug}`}
-                    className="hover:text-white transition-colors"
+                    className="hover:text-primary transition-colors"
                   >
                     <ExternalLink size={16} className="ml-auto" />
                   </Link>

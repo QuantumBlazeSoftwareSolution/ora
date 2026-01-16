@@ -7,17 +7,17 @@ export default async function UsersPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-3xl font-heading font-bold tracking-tight text-foreground">
           User Base
         </h1>
-        <p className="text-neutral-400">
+        <p className="text-muted-foreground">
           All registered accounts on the platform.
         </p>
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
-        <table className="w-full text-left text-sm text-neutral-400">
-          <thead className="bg-neutral-950/50 text-neutral-200 uppercase font-medium text-xs">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <table className="w-full text-left text-sm text-muted-foreground">
+          <thead className="bg-muted/50 text-foreground uppercase font-medium text-xs">
             <tr>
               <th className="px-6 py-4">User</th>
               <th className="px-6 py-4">Role</th>
@@ -25,33 +25,32 @@ export default async function UsersPage() {
               <th className="px-6 py-4 text-right">ID</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-800">
+          <tbody className="divide-y divide-border">
             {users.map((user) => (
-              <tr
-                key={user.id}
-                className="hover:bg-neutral-800/50 transition-colors"
-              >
+              <tr key={user.id} className="hover:bg-muted/50 transition-colors">
                 <td className="px-6 py-4 flex items-center gap-3">
-                  <Avatar className="h-8 w-8 bg-neutral-800 border border-neutral-700">
-                    <AvatarFallback className="text-xs">
+                  <Avatar className="h-8 w-8 border border-border">
+                    <AvatarFallback className="text-xs bg-muted text-foreground">
                       {user.name?.[0] || "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium text-white">
+                    <div className="font-medium text-foreground">
                       {user.name || "Unknown"}
                     </div>
-                    <div className="text-xs">{user.email}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {user.email}
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       user.role === "admin"
-                        ? "bg-rose-500/10 text-rose-500"
+                        ? "bg-destructive/10 text-destructive"
                         : user.role === "merchant"
-                        ? "bg-blue-500/10 text-blue-500"
-                        : "bg-neutral-500/10 text-neutral-500"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {user.role}

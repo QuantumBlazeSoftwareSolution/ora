@@ -28,16 +28,16 @@ export function ApplicationList({ applications }: { applications: any[] }) {
 
   if (applications.length === 0) {
     return (
-      <div className="p-12 text-center text-neutral-500">
-        No applications found.
+      <div className="p-12 text-center text-muted-foreground bg-muted/20 rounded-xl border border-border border-dashed">
+        No pending applications.
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm text-neutral-400">
-        <thead className="bg-neutral-950/50 text-neutral-200 uppercase font-medium text-xs">
+      <table className="w-full text-left text-sm text-foreground">
+        <thead className="bg-muted/50 text-muted-foreground uppercase font-medium text-xs">
           <tr>
             <th className="px-6 py-4">Applicant</th>
             <th className="px-6 py-4">Store Details</th>
@@ -46,39 +46,40 @@ export function ApplicationList({ applications }: { applications: any[] }) {
             <th className="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-neutral-800">
+        <tbody className="divide-y divide-border">
           {applications.map((app) => (
-            <tr
-              key={app.id}
-              className="hover:bg-neutral-800/50 transition-colors"
-            >
+            <tr key={app.id} className="hover:bg-muted/50 transition-colors">
               <td className="px-6 py-4">
-                <div className="font-medium text-white">
+                <div className="font-medium text-foreground">
                   {app.applicantName}
                 </div>
-                <div className="text-xs">{app.email}</div>
-                <div className="text-xs">{app.phone}</div>
+                <div className="text-xs text-muted-foreground">{app.email}</div>
+                <div className="text-xs text-muted-foreground">{app.phone}</div>
               </td>
               <td className="px-6 py-4">
-                <div className="font-medium text-white">{app.storeName}</div>
-                <div className="text-xs font-mono">/{app.storeSlug}</div>
+                <div className="font-medium text-foreground">
+                  {app.storeName}
+                </div>
+                <div className="text-xs font-mono text-primary">
+                  /{app.storeSlug}
+                </div>
               </td>
               <td className="px-6 py-4">
                 <div className="flex gap-2">
                   {app.nicUrl ? (
                     <a
                       href="#"
-                      className="flex items-center gap-1 text-blue-400 hover:underline"
+                      className="flex items-center gap-1 text-blue-600 hover:underline"
                     >
                       <FileText size={12} /> NIC
                     </a>
                   ) : (
-                    <span className="text-neutral-600">No NIC</span>
+                    <span className="text-muted-foreground">No NIC</span>
                   )}
                   {app.businessRegUrl ? (
                     <a
                       href="#"
-                      className="flex items-center gap-1 text-purple-400 hover:underline"
+                      className="flex items-center gap-1 text-purple-600 hover:underline"
                     >
                       <FileText size={12} /> BR
                     </a>
@@ -89,10 +90,10 @@ export function ApplicationList({ applications }: { applications: any[] }) {
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     app.status === "approved"
-                      ? "bg-green-500/10 text-green-500"
+                      ? "bg-green-500/10 text-green-600"
                       : app.status === "rejected"
-                      ? "bg-red-500/10 text-red-500"
-                      : "bg-yellow-500/10 text-yellow-500"
+                      ? "bg-red-500/10 text-red-600"
+                      : "bg-yellow-500/10 text-yellow-600"
                   }`}
                 >
                   {app.status}
@@ -103,7 +104,7 @@ export function ApplicationList({ applications }: { applications: any[] }) {
                   <button
                     onClick={() => handleApprove(app.id)}
                     disabled={isPending}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-md text-xs font-bold transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md text-xs font-bold transition-colors disabled:opacity-50 shadow-sm"
                   >
                     {isPending ? (
                       <Loader2 size={12} className="animate-spin" />

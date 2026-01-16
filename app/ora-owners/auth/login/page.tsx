@@ -39,48 +39,43 @@ export default function AdminLoginPage() {
   }, [state, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
-        {/* Header content unchanged... */}
+    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/20">
+      <div className="w-full max-w-md bg-card border border-border rounded-2xl p-8 shadow-xl">
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-500 border border-rose-500/20">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-primary border border-primary/20">
             <ShieldAlert size={32} />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight mb-2">
-            Restricted Area
+          <h1 className="text-2xl font-bold tracking-tight mb-2 font-heading text-foreground">
+            Ora Owners
           </h1>
-          <p className="text-neutral-500 text-sm">
-            Authorized personnel only. All access is logged.
+          <p className="text-muted-foreground text-sm">
+            Please authenticate to access the command center.
           </p>
         </div>
 
         <form action={dispatch} className="space-y-6">
           {state.error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm text-center">
+            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm text-center">
               {state.error}
             </div>
           )}
-          {/* Hidden input to ensure logic knows its admin if needed, 
-              but standard loginAction handles email/pass. 
-              We rely on redirect logic in user role.
-           */}
           <div className="space-y-2">
-            <Label className="text-neutral-300">Command Key (Email)</Label>
+            <Label className="text-foreground">Email Address</Label>
             <Input
               name="email"
               type="email"
               placeholder="admin@ora.lk"
               required
-              className="bg-neutral-950 border-neutral-800 focus:ring-rose-500 focus:border-rose-500 text-white placeholder:text-neutral-700 h-12"
+              className="bg-background border-input focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground h-12"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-neutral-300">Passcode</Label>
+            <Label className="text-foreground">Password</Label>
             <Input
               name="password"
               type="password"
               required
-              className="bg-neutral-950 border-neutral-800 focus:ring-rose-500 focus:border-rose-500 text-white h-12"
+              className="bg-background border-input focus:ring-primary focus:border-primary text-foreground h-12"
             />
           </div>
 
