@@ -86,8 +86,8 @@ export function StoreBrowser({ initialStores, categories }: StoreBrowserProps) {
       <div className="bg-card/30 border border-border/40 rounded-3xl p-6 backdrop-blur-xl shadow-sm">
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-6">
           <div>
-            <h2 className="text-xl font-bold font-heading flex items-center gap-2">
-              <StoreIcon className="text-primary" /> Store Browser
+            <h2 className="text-xl font-bold font-heading flex items-center gap-2 text-foreground/90">
+              <StoreIcon className="" /> Store Browser
             </h2>
             <p className="text-sm text-muted-foreground">
               Find and manage registered businesses.
@@ -191,7 +191,7 @@ export function StoreBrowser({ initialStores, categories }: StoreBrowserProps) {
             We couldn't find any stores matching your current filters. Try
             adjusting your search or clearing filters.
           </p>
-          <Button variant="outline" className="mt-6" onClick={clearFilters}>
+          <Button variant="outline" className="mt-6 text-foreground/90" onClick={clearFilters}>
             Clear All Filters
           </Button>
         </div>

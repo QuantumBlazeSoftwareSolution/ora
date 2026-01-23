@@ -20,7 +20,9 @@ import {
   RefreshCw,
   RotateCcw,
   Pencil,
+  GripVertical,
 } from "lucide-react";
+import { Reorder } from "framer-motion";
 import {
   updateSubscription,
   resetSubscription,
@@ -37,44 +39,56 @@ interface Subscription {
   highlight: boolean | null;
 }
 
+interface FeatureItem {
+  id: string;
+  text: string;
+}
+
 export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetting, setResetting] = useState(false);
 
-  const [formData, setFormData] = useState({
-    name: plan.name,
-    price: plan.price,
-    description: plan.description || "",
-    features: plan.features || [],
-    highlight: plan.highlight || false,
-  });
+  const [name, setName] = useState(plan.name);
+  const [price, setPrice] = useState(plan.price);
+  const [description, setDescription] = useState(plan.description || "");
+  const [highlight, setHighlight] = useState(plan.highlight || false);
+
+  // Initialize features with IDs for drag and drop stability
+  const [features, setFeatures] = useState<FeatureItem[]>(
+    (plan.features || []).map((text) => ({
+      id: crypto.randomUUID(),
+      text,
+    })),
+  );
 
   const handleFeatureAdd = () => {
-    setFormData((prev) => ({
-      ...prev,
-      features: [...prev.features, ""],
-    }));
+    setFeatures((prev) => [...prev, { id: crypto.randomUUID(), text: "" }]);
   };
 
-  const handleFeatureChange = (index: number, value: string) => {
-    const newFeatures = [...formData.features];
-    newFeatures[index] = value;
-    setFormData((prev) => ({ ...prev, features: newFeatures }));
+  const handleFeatureChange = (id: string, value: string) => {
+    setFeatures((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, text: value } : item)),
+    );
   };
 
-  const handleFeatureRemove = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index),
-    }));
+  const handleFeatureRemove = (id: string) => {
+    setFeatures((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await updateSubscription(plan.id, formData);
+      const payload = {
+        name,
+        price,
+        description,
+        features: features.map((f) => f.text),
+        highlight,
+      };
+
+      const res = await updateSubscription(plan.id, payload);
       if (res.success) {
         toast.success("Plan updated successfully");
         setOpen(false);
@@ -98,7 +112,6 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
       if (res.success) {
         toast.success("Plan reset to defaults");
         setOpen(false);
-        // We know what the defaults are, but simpler to just reload the page or let revalidatePath handle it (which it does)
       } else {
         toast.error(res.error || "Failed to reset plan");
       }
@@ -130,10 +143,8 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
             <div className="space-y-2">
               <Label>Plan Name</Label>
               <Input
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
@@ -141,10 +152,8 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
               <Label>Price (LKR)</Label>
               <Input
                 type="number"
-                value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: Number(e.target.value) })
-                }
+                value={price}
+                onChange={(e) => setPrice(Number(e.target.value))}
                 required
               />
             </div>
@@ -153,10 +162,8 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
           <div className="space-y-2">
             <Label>Description</Label>
             <Textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
@@ -172,40 +179,50 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
                 <Plus className="w-3 h-3 mr-1" /> Add
               </Button>
             </Label>
-            <div className="space-y-2">
-              {formData.features.map((feature, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <Input
-                    value={feature}
-                    onChange={(e) => handleFeatureChange(idx, e.target.value)}
-                    placeholder="Feature description"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleFeatureRemove(idx)}
-                  >
-                    <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
-                  </Button>
-                </div>
+            <Reorder.Group
+              axis="y"
+              values={features}
+              onReorder={setFeatures}
+              className="space-y-2"
+            >
+              {features.map((item) => (
+                <Reorder.Item key={item.id} value={item}>
+                  <div className="flex gap-2 items-center">
+                    <div className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
+                      <GripVertical className="w-4 h-4" />
+                    </div>
+                    <Input
+                      value={item.text}
+                      onChange={(e) =>
+                        handleFeatureChange(item.id, e.target.value)
+                      }
+                      placeholder="Feature description"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleFeatureRemove(item.id)}
+                    >
+                      <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  </div>
+                </Reorder.Item>
               ))}
-            </div>
+            </Reorder.Group>
           </div>
 
           <div className="flex items-center space-x-2 border p-3 rounded-lg">
             <Checkbox
               id="highlight"
-              checked={formData.highlight}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, highlight: checked === true })
-              }
+              checked={highlight}
+              onCheckedChange={(checked) => setHighlight(checked === true)}
             />
             <Label
               htmlFor="highlight"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Highlight as "Most Popular"
+              Highlight as &quot;Most Popular&quot;
             </Label>
           </div>
 
