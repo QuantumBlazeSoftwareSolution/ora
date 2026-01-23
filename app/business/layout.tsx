@@ -14,7 +14,7 @@ export default async function BusinessLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground dark font-sans selection:bg-primary/20">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
       {/* Could add a sidebar here if common for all business pages */}
       {children}
     </div>
