@@ -13,7 +13,7 @@ export function StoreHero({ store }: StoreHeroProps) {
       {/* Background Image (Using Theme Color fallback for now) */}
       <div
         className="absolute inset-0 bg-linear-to-br from-gray-900 to-gray-800"
-        style={{ backgroundColor: store.themeColor || "#000" }}
+        style={{ backgroundColor: "#000" }}
       >
         <div className="absolute inset-0 bg-black/40" />
       </div>

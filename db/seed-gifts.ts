@@ -26,7 +26,6 @@ async function main() {
         name: "Gifts & Hobbies",
         slug: "gifts-and-hobbies",
         imageUrl: "🎁",
-        description: "Perfect gifts for everyone",
       })
       .returning();
     category = result[0];
@@ -75,7 +74,6 @@ async function main() {
         categoryId: category!.id,
         subscriptionId: subscription?.id,
         status: "approved",
-        themeColor: "#FF6B6B", // A nice gift red/pink
         phoneNumber: "0771234567",
       })
       .returning();

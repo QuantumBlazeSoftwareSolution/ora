@@ -19,7 +19,6 @@ export const stores = pgTable("stores", {
   status: storeStatusEnum("status").default("pending").notNull(),
   subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
 
-  themeColor: text("theme_color").default("#000000"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
