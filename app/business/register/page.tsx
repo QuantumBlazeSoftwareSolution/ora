@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSubscriptions } from "@/app/actions/subscriptions";
 import { submitBusinessApplication } from "@/app/actions/applications";
+import { getCategories } from "@/app/actions/categories";
 
 // --- Validation Schemas --- //
 const step1Schema = z.object({
@@ -36,9 +37,9 @@ const step2Schema = z.object({
     .min(2, "Store URL is required")
     .regex(
       /^[a-z0-9-]+$/,
-      "Only lowercase letters, numbers, and dashes allowed"
+      "Only lowercase letters, numbers, and dashes allowed",
     ),
-  categoryId: z.number().min(1, "Please select a category"),
+  categoryId: z.string().min(1, "Please select a category"),
 });
 
 // Mock Step 3 validation (File uploads handled separately in state for MVP)
@@ -48,24 +49,8 @@ type FormData = z.infer<typeof step1Schema> &
   z.infer<typeof step2Schema> & {
     nicUrl?: string;
     businessRegUrl?: string;
-    subscriptionId: number;
+    subscriptionId: string;
   };
-
-// --- Mock Categories --- //
-const CATEGORIES = [
-  { id: 1, name: "Food & Dining", icon: "🍔" },
-  { id: 2, name: "Fashion", icon: "👗" },
-  { id: 3, name: "Health & Beauty", icon: "💄" },
-  { id: 4, name: "Electronics", icon: "📱" },
-  { id: 5, name: "Home & Garden", icon: "🏡" },
-  { id: 6, name: "Services", icon: "🛠️" },
-  { id: 7, name: "Art & Crafts", icon: "🎨" },
-  { id: 8, name: "Automotive", icon: "🚗" },
-  { id: 9, name: "Books", icon: "📚" },
-  { id: 10, name: "Toys & Games", icon: "🧸" },
-  { id: 11, name: "Sports", icon: "⚽" },
-  { id: 12, name: "Pets", icon: "🐾" },
-];
 
 const ITEMS_PER_PAGE = 6;
 
@@ -75,21 +60,33 @@ export default function RegisterWizard() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
 
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
   // Category Pagination
   const [categoryPage, setCategoryPage] = useState(0);
 
   useEffect(() => {
-    async function loadPlans() {
+    async function loadData() {
       try {
-        const { data } = await getSubscriptions();
-        if (data) setPlans(data);
+        const plansRes = await getSubscriptions();
+        if (plansRes.data) setPlans(plansRes.data);
       } catch (err) {
         console.error(err);
       } finally {
         setLoadingPlans(false);
       }
+
+      try {
+        const catRes = await getCategories();
+        if (catRes.success && catRes.data) setCategories(catRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingCategories(false);
+      }
     }
-    loadPlans();
+    loadData();
   }, []);
 
   const [formData, setFormData] = useState<Partial<FormData>>({
@@ -116,7 +113,7 @@ export default function RegisterWizard() {
     defaultValues: {
       storeName: formData.storeName || "",
       storeSlug: formData.storeSlug || "",
-      categoryId: formData.categoryId || 0,
+      categoryId: formData.categoryId || "",
     },
   });
 
@@ -145,7 +142,7 @@ export default function RegisterWizard() {
   };
 
   // State for Step 4 Selection
-  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const handleSubmitRegistration = async () => {
     if (!selectedPlanId) return;
@@ -176,7 +173,7 @@ export default function RegisterWizard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 selection:bg-purple-100">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 selection:bg-purple-100 text-gray-900">
       {/* Success Popup */}
       <AnimatePresence>
         {showSuccessPopup && (
@@ -217,23 +214,39 @@ export default function RegisterWizard() {
 
       <div className="w-full max-w-2xl">
         {/* Progress Header */}
-        <div className="mb-8 flex justify-between items-center px-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  step >= i
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-200 text-gray-500"
-                }`}
-              >
-                {i}
+        <div className="mb-8 flex justify-between items-center px-2 text-gray-900 overflow-x-auto">
+          {[
+            { id: 1, label: "Identity" },
+            { id: 2, label: "Store" },
+            { id: 3, label: "Verify" },
+            { id: 4, label: "Plan" },
+          ].map((s) => (
+            <div key={s.id} className="flex gap-2 items-center min-w-fit">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    step >= s.id
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-200 text-gray-500"
+                  }`}
+                >
+                  {s.id}
+                </div>
+                <span
+                  className={`text-xs font-medium ${
+                    step >= s.id ? "text-purple-700" : "text-gray-400"
+                  }`}
+                >
+                  {s.label}
+                </span>
               </div>
-              <div
-                className={`h-1 w-8 rounded-full transition-all ${
-                  step > i ? "bg-purple-600" : "bg-gray-200"
-                }`}
-              ></div>
+              {s.id < 4 && (
+                <div
+                  className={`h-1 w-8 md:w-16 rounded-full transition-all mb-4 ${
+                    step > s.id ? "bg-purple-600" : "bg-gray-200"
+                  }`}
+                ></div>
+              )}
             </div>
           ))}
         </div>
@@ -391,14 +404,14 @@ export default function RegisterWizard() {
                         onClick={() =>
                           setCategoryPage(
                             Math.min(
-                              Math.ceil(CATEGORIES.length / ITEMS_PER_PAGE) - 1,
-                              categoryPage + 1
-                            )
+                              Math.ceil(categories.length / ITEMS_PER_PAGE) - 1,
+                              categoryPage + 1,
+                            ),
                           )
                         }
                         disabled={
                           (categoryPage + 1) * ITEMS_PER_PAGE >=
-                          CATEGORIES.length
+                          categories.length
                         }
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-gray-600"
                       >
@@ -419,28 +432,39 @@ export default function RegisterWizard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {CATEGORIES.slice(
-                      categoryPage * ITEMS_PER_PAGE,
-                      (categoryPage + 1) * ITEMS_PER_PAGE
-                    ).map((cat) => (
-                      <button
-                        type="button"
-                        key={cat.id}
-                        onClick={() => form2.setValue("categoryId", cat.id)}
-                        className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
-                          form2.watch("categoryId") === cat.id
-                            ? "border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500"
-                            : "border-gray-200 hover:border-purple-200 hover:bg-gray-50 text-gray-600"
-                        }`}
-                      >
-                        <span className="text-2xl">{cat.icon}</span>
-                        <span className="text-xs font-semibold">
-                          {cat.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+                  {loadingCategories ? (
+                    <div className="py-10 text-center text-gray-500 text-sm flex flex-col items-center">
+                      <Loader2 className="animate-spin mb-2" size={20} />
+                      Loading Categories...
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {categories
+                        .slice(
+                          categoryPage * ITEMS_PER_PAGE,
+                          (categoryPage + 1) * ITEMS_PER_PAGE,
+                        )
+                        .map((cat) => (
+                          <button
+                            type="button"
+                            key={cat.id}
+                            onClick={() => form2.setValue("categoryId", cat.id)}
+                            className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+                              form2.watch("categoryId") === cat.id
+                                ? "border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500"
+                                : "border-gray-200 hover:border-purple-200 hover:bg-gray-50 text-gray-600"
+                            }`}
+                          >
+                            <span className="text-2xl">
+                              {cat.imageUrl || "📦"}
+                            </span>
+                            <span className="text-xs font-semibold text-center">
+                              {cat.name}
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  )}
                   {form2.formState.errors.categoryId && (
                     <p className="text-red-500 text-sm mt-2">
                       {form2.formState.errors.categoryId.message}
@@ -562,8 +586,8 @@ export default function RegisterWizard() {
                           isSelected
                             ? "border-2 border-black bg-gray-50 shadow-xl ring-1 ring-black/5"
                             : isGrowth
-                            ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100 opacity-90"
-                            : "border-gray-200 hover:border-black hover:bg-gray-50 opacity-90"
+                              ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100 opacity-90"
+                              : "border-gray-200 hover:border-black hover:bg-gray-50 opacity-90"
                         }`}
                       >
                         {plan.highlight && (
@@ -578,8 +602,8 @@ export default function RegisterWizard() {
                                 isGrowth
                                   ? "bg-purple-100 text-purple-600"
                                   : plan.slug === "empire"
-                                  ? "bg-black text-white"
-                                  : "bg-gray-100 text-gray-500"
+                                    ? "bg-black text-white"
+                                    : "bg-gray-100 text-gray-500"
                               }`}
                             >
                               {plan.slug === "growth" ? (
@@ -602,8 +626,8 @@ export default function RegisterWizard() {
                                 {plan.billingPeriod === "forever"
                                   ? "For beginners"
                                   : plan.slug === "empire"
-                                  ? "Dominate market"
-                                  : "Scale faster"}
+                                    ? "Dominate market"
+                                    : "Scale faster"}
                               </p>
                             </div>
                           </div>

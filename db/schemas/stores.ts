@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  integer,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { storeStatusEnum } from "./enum-types";
@@ -13,18 +6,18 @@ import { categories } from "./categories";
 import { subscriptions } from "./subscriptions";
 
 export const stores = pgTable("stores", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
     .references(() => users.id)
     .notNull(),
   slug: text("slug").unique().notNull(), // ora.lk/slug
   name: text("name").notNull(),
   description: text("description"),
-  categoryId: integer("category_id").references(() => categories.id),
+  categoryId: uuid("category_id").references(() => categories.id),
   logoUrl: text("logo_url"),
   phoneNumber: text("phone_number"), // WhatsApp Number
   status: storeStatusEnum("status").default("pending").notNull(),
-  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
+  subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
   themeColor: text("theme_color").default("#000000"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
@@ -48,5 +41,15 @@ export const storesRelations = relations(stores, ({ one }) => ({
   }),
 }));
 
+import { type User } from "./users";
+import { type Category } from "./categories";
+import { type Subscription } from "./subscriptions";
+
 export type Store = typeof stores.$inferSelect;
 export type StoreInsert = typeof stores.$inferInsert;
+
+export type StoreWithDetails = Store & {
+  user: User;
+  category: Category | null;
+  subscription: Subscription | null;
+};

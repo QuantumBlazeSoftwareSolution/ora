@@ -11,7 +11,7 @@ export async function getStoreBySlug(slug: string) {
   return store;
 }
 
-export async function getStoreContent(storeId: number) {
+export async function getStoreContent(storeId: string) {
   const storeProducts = await db
     .select()
     .from(products)

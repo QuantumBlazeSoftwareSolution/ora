@@ -1,10 +1,10 @@
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { storeStatusEnum } from "./enum-types";
 import { categories } from "./categories";
 import { subscriptions } from "./subscriptions";
 
 export const businessApplications = pgTable("business_applications", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
 
   // Applicant Details
   applicantName: text("applicant_name").notNull(),
@@ -14,11 +14,11 @@ export const businessApplications = pgTable("business_applications", {
   // Store Details
   storeName: text("store_name").notNull(),
   storeSlug: text("store_slug").notNull(),
-  categoryId: integer("category_id").references(() => categories.id),
+  categoryId: uuid("category_id").references(() => categories.id),
   description: text("description"),
 
   // Subscription Choice
-  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
+  subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
 
   // Verification Documents
   nicUrl: text("nic_url"),

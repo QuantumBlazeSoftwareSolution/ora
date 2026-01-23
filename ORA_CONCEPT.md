@@ -29,7 +29,7 @@
 
 ### C. Admin Dashboard ("The Command Center")
 
-- **Analytics**: Real-time view of Profile Views, WhatsApp Clicks, Booking Requests.
+- **Analytics**: Real-time view of Profile Views, WhatsApp Clicks, Booking Requests, and Platform-wide growth.
 - **Product Hub**: Add/Edit/Delete products with "In Stock" toggles.
 - **Service Suite**: Manage Service Menu, Durations, and Pricing.
 - **Booking Manager**: Calendar/List view of upcoming appointments (for Salons/Tutors).
@@ -37,6 +37,10 @@
   - **Profile**: Logo, Cover Image, Bio, Contact Info.
   - **Hours**: Operating hours configuration.
   - **Subscription**: View current plan and upgrade options.
+- **Platform Management (Super Admin)**:
+  - **Category Management**: CRUD operations for business categories.
+  - **Global Analytics**: "Track Everything" - Revenue, User Growth, Store Performance.
+  - **Reports**: Downloadable reports for transactions and system health.
 
 ## 3. Technology Stack
 

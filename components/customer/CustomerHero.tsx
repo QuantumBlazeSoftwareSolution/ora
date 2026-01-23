@@ -26,7 +26,7 @@ export function CustomerHero() {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-500 font-light max-w-2xl mx-auto">
-            Curated collections from Sri Lanka's finest local creators.
+            Curated collections from Sri Lanka&apos;s finest local creators.
           </p>
         </motion.div>
 

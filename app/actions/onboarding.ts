@@ -121,8 +121,8 @@ export async function registerBusiness(data: {
   phone: string;
   storeName: string;
   slug: string;
-  categoryId: number;
-  subscriptionId: number;
+  categoryId: string;
+  subscriptionId: string;
   description?: string;
   nicUrl: string;
   businessRegUrl?: string;

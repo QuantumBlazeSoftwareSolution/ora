@@ -3,6 +3,7 @@ import { db } from "../db";
 import { users } from "../db/schemas/users";
 import { hashPassword } from "../lib/auth";
 import { eq } from "drizzle-orm";
+import { adminUsers } from "@/db/schemas";
 
 async function main() {
   console.log("Seeding super admin...");
@@ -19,7 +20,7 @@ async function main() {
 
     if (existing.length === 0) {
       const res = await db
-        .insert(users)
+        .insert(adminUsers)
         .values({
           email,
           password: hashedPassword,

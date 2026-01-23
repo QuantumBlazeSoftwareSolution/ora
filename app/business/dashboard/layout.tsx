@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { getSession } from "@/lib/auth";
+import { getStoreByUserId } from "@/app/actions/store";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
@@ -13,9 +14,14 @@ export default async function DashboardLayout({
     redirect("/business/login");
   }
 
+  const store = await getStoreByUserId(session.userId as string);
+
   return (
     <div className="min-h-screen bg-muted/20">
-      <Sidebar />
+      <Sidebar
+        businessName={store?.name}
+        businessLogo={store?.logoUrl || undefined}
+      />
       <main className="md:pl-64 min-h-screen">
         <div className="p-8 max-w-7xl mx-auto">{children}</div>
       </main>

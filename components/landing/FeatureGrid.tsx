@@ -55,7 +55,7 @@ export function FeatureGrid() {
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
             Everything you need. <br />
-            <span className="text-gray-400">Nothing you don't.</span>
+            <span className="text-gray-400">Nothing you don&apos;t.</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             We stripped away the complexity of traditional e-commerce. Ora gives

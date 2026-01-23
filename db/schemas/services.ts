@@ -1,17 +1,17 @@
 import {
   pgTable,
-  serial,
   text,
   integer,
   decimal,
   boolean,
   timestamp,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 
 export const services = pgTable("services", {
-  id: serial("id").primaryKey(),
-  storeId: integer("store_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeId: uuid("store_id")
     .references(() => stores.id)
     .notNull(),
   name: text("name").notNull(),

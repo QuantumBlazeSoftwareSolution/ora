@@ -8,14 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
+import { Product } from "@/db/schemas/products";
+
 // Define a type for the product based on schema
-type Product = {
-  id: number;
-  name: string;
-  price: string;
-  imageUrl: string | null;
-  isVisible: boolean | null;
-};
+// type Product = {
+//   id: number;
+//   name: string;
+//   price: string;
+//   imageUrl: string | null;
+//   isVisible: boolean | null;
+// };
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);

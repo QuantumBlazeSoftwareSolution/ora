@@ -1,10 +1,6 @@
 import {
   pgTable,
   text,
-  serial,
-  integer,
-  boolean,
-  decimal,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";

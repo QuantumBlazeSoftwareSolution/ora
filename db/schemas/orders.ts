@@ -1,17 +1,10 @@
-import {
-  pgTable,
-  serial,
-  text,
-  integer,
-  decimal,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, decimal, timestamp, uuid } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 import { orderStatusEnum } from "./enum-types";
 
 export const orders = pgTable("orders", {
-  id: serial("id").primaryKey(),
-  storeId: integer("store_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeId: uuid("store_id")
     .references(() => stores.id)
     .notNull(),
   customerName: text("customer_name").notNull(),

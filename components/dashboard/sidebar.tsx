@@ -26,7 +26,12 @@ const sidebarItems = [
   { href: "/business/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  businessName?: string;
+  businessLogo?: string;
+}
+
+export function Sidebar({ businessName, businessLogo }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -37,13 +42,37 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-card border-r h-screen fixed inset-y-0 left-0 hidden md:flex flex-col">
-      <div className="h-16 flex items-center px-6 border-b">
+      <div className="h-auto flex flex-col gap-4 p-6 border-b">
+        {/* Ora Logo */}
         <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
           <div className="w-6 h-6 bg-black rounded text-white flex items-center justify-center text-sm">
             O
           </div>
           ra.
         </div>
+
+        {/* Business Profile */}
+        {businessName && (
+          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl border border-border/50">
+            {businessLogo ? (
+              <img
+                src={businessLogo}
+                alt={businessName}
+                className="w-10 h-10 rounded-lg object-cover border border-border"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border border-primary/20">
+                {businessName.substring(0, 1).toUpperCase()}
+              </div>
+            )}
+            <div className="flex flex-col overflow-hidden">
+              <span className="font-bold text-sm truncate">{businessName}</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                Business
+              </span>
+            </div>
+          </div>
+        )}
       </div>
       <nav className="flex-1 p-4 space-y-1">
         {sidebarItems.map((item) => {
@@ -57,7 +86,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <Icon size={18} />

@@ -7,15 +7,15 @@ export default async function ApplicationsPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-3xl font-heading font-bold tracking-tight text-foreground">
           Applications
         </h1>
-        <p className="text-neutral-400">
+        <p className="text-muted-foreground">
           Manage all business registration requests.
         </p>
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <ApplicationList applications={applications} />
       </div>
     </div>
