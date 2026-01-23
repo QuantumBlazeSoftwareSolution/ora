@@ -201,6 +201,70 @@ export async function rejectApplication(applicationId: string, reason: string) {
 // --- Delete Application ---
 export async function deleteApplication(applicationId: string) {
   try {
+    // Fetch details to get file URLs
+    const app = await db.query.businessApplications.findFirst({
+      where: eq(businessApplications.id, applicationId),
+    });
+
+    if (app) {
+      // Create Admin Client for Deletion (Service Role)
+      // Note: If SUPABASE_SERVICE_ROLE_KEY is not set, this might fail unless RLS allows public delete (unsafe)
+      // or we use the anon key and RLS handles it. Ideally use Service Role.
+      const { createClient } = require("@supabase/supabase-js");
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY ||
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      );
+
+      const filesToDelete: string[] = [];
+
+      // Helper to extract path from URL
+      const extractPath = (url: string) => {
+        try {
+          // URL format: .../storage/v1/object/public/documents/folder/file.ext
+          // or just relative path?
+          // Assuming public URL, need to extract relative path after bucket name if standard.
+          // Or just simply: 'folder/file.ext' if stored that way.
+          // Let's assume the URL is full public URL.
+          const urlObj = new URL(url);
+          // Split by 'documents/' segment?
+          const parts = urlObj.pathname.split("/documents/");
+          if (parts.length > 1) {
+            return decodeURIComponent(parts[1]);
+          }
+          return null;
+        } catch (e) {
+          return null;
+        }
+      };
+
+      if (app.nicUrls && app.nicUrls.length > 0) {
+        app.nicUrls.forEach((url) => {
+          const path = extractPath(url);
+          if (path) filesToDelete.push(path);
+        });
+      }
+
+      if (app.businessRegUrl) {
+        const path = extractPath(app.businessRegUrl);
+        if (path) filesToDelete.push(path);
+      }
+
+      if (filesToDelete.length > 0) {
+        const { error } = await supabaseAdmin.storage
+          .from("documents")
+          .remove(filesToDelete);
+
+        if (error) {
+          console.error("Failed to delete files from storage:", error);
+          // Non-blocking, continue to delete record
+        } else {
+          console.log("Deleted files:", filesToDelete);
+        }
+      }
+    }
+
     await db
       .delete(businessApplications)
       .where(eq(businessApplications.id, applicationId));

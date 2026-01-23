@@ -18,6 +18,7 @@ import {
   Calendar,
   User,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -414,20 +415,32 @@ function DocumentPreviewDialog({
       */}
       <DialogContent
         showCloseButton={false}
-        className="max-w-4xl w-full max-h-[90vh] bg-zinc-950 border border-zinc-800 p-0 overflow-hidden shadow-2xl"
+        className="max-w-4xl w-full max-h-[90vh] bg-zinc-950 border border-zinc-800 p-0 overflow-hidden shadow-2xl flex flex-col"
       >
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all z-50 shadow-lg border border-white/10"
-        >
-          <XCircle size={24} />
-        </button>
+        <div className="absolute top-2 right-2 z-50 flex gap-2">
+          <a
+            href={url}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all shadow-lg border border-white/10 flex items-center justify-center"
+            title="Download"
+          >
+            <Download size={20} />
+          </a>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all shadow-lg border border-white/10"
+          >
+            <XCircle size={24} />
+          </button>
+        </div>
 
-        <div className="w-full h-full min-h-[50vh] flex items-center justify-center p-4 bg-zinc-950/50 backdrop-blur-sm">
+        <div className="flex-1 w-full min-h-[50vh] flex items-center justify-center p-4 bg-zinc-950/50 backdrop-blur-sm overflow-hidden">
           {url.toLowerCase().endsWith(".pdf") ? (
             <iframe
               src={url}
-              className="w-full h-[80vh] rounded-lg border border-zinc-700"
+              className="w-full h-full rounded-lg border border-zinc-700"
             />
           ) : (
             // Use standard img tag for simplicity to ensure object-contain works as expected
