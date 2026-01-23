@@ -7,6 +7,7 @@ import {
   ShieldAlert,
   Grid3X3,
   LineChart,
+  CreditCard,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -61,6 +62,14 @@ export default function AdminLayout({
           >
             <Grid3X3 size={18} />
             Categories
+          </Link>
+          <div className="h-px bg-border my-2 mx-3" />
+          <Link
+            href="/ora-owners/subscriptions"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+          >
+            <CreditCard size={18} />
+            Subscriptions
           </Link>
           <div className="h-px bg-border my-2 mx-3" />
           <Link
