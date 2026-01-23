@@ -141,6 +141,13 @@
       "when": 1769185223450,
       "tag": "0020_lively_thaddeus_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1769186078360,
+      "tag": "0021_zippy_johnny_blaze",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import {
   Grid3X3,
   LineChart,
   CreditCard,
+  Ban,
 } from "lucide-react";
 
 import { getCurrentUser } from "@/app/actions/auth";
@@ -114,6 +115,13 @@ export default async function AdminLayout({
               >
                 <CreditCard size={18} />
                 Subscriptions
+              </Link>
+              <Link
+                href="/ora-owners/restricted-slugs"
+                className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+              >
+                <Ban size={18} />
+                Restricted Slugs
               </Link>
             </div>
           </div>

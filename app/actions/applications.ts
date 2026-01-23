@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { businessApplications } from "@/db/schemas/business-applications";
+import { restrictedSlugs } from "@/db/schemas/restricted-slugs";
 import { eq } from "drizzle-orm";
 
 export async function submitBusinessApplication(data: {
@@ -27,6 +28,18 @@ export async function submitBusinessApplication(data: {
       return {
         success: false,
         error: "You already have a pending application.",
+      };
+    }
+
+    // Check Blacklist
+    const restricted = await db.query.restrictedSlugs.findFirst({
+      where: (slugs, { eq }) => eq(slugs.word, data.storeSlug.toLowerCase()),
+    });
+
+    if (restricted) {
+      return {
+        success: false,
+        error: "This store URL is unavailable. Please choose another.",
       };
     }
 
