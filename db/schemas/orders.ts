@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  text,
-  integer,
-  decimal,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, decimal, timestamp, uuid } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 import { orderStatusEnum } from "./enum-types";
 

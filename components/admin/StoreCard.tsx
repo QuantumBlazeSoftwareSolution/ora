@@ -4,11 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { ExternalLink, MapPin, MoreHorizontal, User } from "lucide-react";
+import { ExternalLink, MoreHorizontal, User } from "lucide-react";
 import Link from "next/link";
 
+import { StoreWithDetails } from "@/db/schemas/stores";
+
 interface StoreCardProps {
-  store: any;
+  store: StoreWithDetails;
 }
 
 export function StoreCard({ store }: StoreCardProps) {
@@ -81,11 +83,11 @@ export function StoreCard({ store }: StoreCardProps) {
           <div className="relative">
             <Avatar className="h-20 w-20 border-4 border-[#1e1e2e] shadow-xl ring-1 ring-white/10 group-hover:ring-primary/40 transition-all duration-500">
               <AvatarImage
-                src={store.logoUrl}
+                src={store.logoUrl || ""}
                 alt={store.name}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-gradient-to-br from-gray-800 to-gray-950 text-white font-bold text-2xl">
+              <AvatarFallback className="bg-linear-to-br from-gray-800 to-gray-950 text-white font-bold text-2xl">
                 {store.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -145,7 +147,7 @@ export function StoreCard({ store }: StoreCardProps) {
             <div className="flex items-center gap-1.5 max-w-full">
               <User size={12} className="text-primary" />
               <span className="text-sm font-bold text-foreground truncate">
-                {store.user?.name.split(" ")[0]}
+                {store.user?.name ? store.user.name.split(" ")[0] : "Admin"}
               </span>
             </div>
           </div>

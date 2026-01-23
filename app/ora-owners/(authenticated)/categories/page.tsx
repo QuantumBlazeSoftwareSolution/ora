@@ -1,20 +1,12 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useCallback } from "react";
 import {
   getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
 } from "@/app/actions/categories";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,8 +19,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2, Loader2, Search } from "lucide-react";
 
+import { Category } from "@/db/schemas/categories";
+
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -36,25 +30,25 @@ export default function CategoriesPage() {
   // Modal State
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentId, setCurrentId] = useState<number | null>(null);
+  const [currentId, setCurrentId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
     imageUrl: "",
   });
 
-  async function loadCategories() {
+  const loadCategories = useCallback(async () => {
     setLoading(true);
     const res = await getCategories();
     if (res.success && res.data) {
       setCategories(res.data);
     }
     setLoading(false);
-  }
+  }, []);
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [loadCategories]);
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.slug) {
@@ -80,7 +74,7 @@ export default function CategoriesPage() {
     });
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (
       !confirm(
         "Are you sure? This might break existing applications if linked."
@@ -98,7 +92,7 @@ export default function CategoriesPage() {
     });
   };
 
-  const handleEdit = (cat: any) => {
+  const handleEdit = (cat: Category) => {
     setFormData({
       name: cat.name,
       slug: cat.slug,

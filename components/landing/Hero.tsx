@@ -19,7 +19,7 @@ export function Hero() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
               </span>
               <span className="text-sm font-medium text-purple-900">
-                Sri Lanka's #1 Creator Store
+                Sri Lanka&apos;s #1 Creator Store
               </span>
             </div>
 
@@ -98,9 +98,9 @@ export function Hero() {
                       WhatsApp Output
                     </div>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      "Hello! I'd like to order: <br />
+                      &quot;Hello! I&apos;d like to order: <br />
                       1x Custom Birthday Box <br />
-                      <strong>Total: LKR 4,500</strong>"
+                      <strong>Total: LKR 4,500</strong>&quot;
                     </p>
                   </div>
                 </div>

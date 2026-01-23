@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  integer,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { storeStatusEnum } from "./enum-types";
@@ -48,5 +41,15 @@ export const storesRelations = relations(stores, ({ one }) => ({
   }),
 }));
 
+import { type User } from "./users";
+import { type Category } from "./categories";
+import { type Subscription } from "./subscriptions";
+
 export type Store = typeof stores.$inferSelect;
 export type StoreInsert = typeof stores.$inferInsert;
+
+export type StoreWithDetails = Store & {
+  user: User;
+  category: Category | null;
+  subscription: Subscription | null;
+};

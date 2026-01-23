@@ -10,8 +10,8 @@ export async function submitBusinessApplication(data: {
   phone: string;
   storeName: string;
   storeSlug: string;
-  categoryId: number;
-  subscriptionId: number;
+  categoryId: string;
+  subscriptionId: string;
   nicUrl: string;
   businessRegUrl?: string;
 }) {

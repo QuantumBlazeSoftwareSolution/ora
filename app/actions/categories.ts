@@ -10,7 +10,7 @@ export async function getCategories() {
     const data = await db
       .select()
       .from(categories)
-      .orderBy(desc(categories.id));
+      .orderBy(desc(categories.createdAt)); // Sort by Date for UUID
     return { success: true, data };
   } catch (error) {
     console.error("Failed to fetch categories:", error);
@@ -39,7 +39,7 @@ export async function createCategory(data: {
 }
 
 export async function updateCategory(
-  id: number,
+  id: string,
   data: { name: string; slug: string; imageUrl?: string }
 ) {
   try {
@@ -61,7 +61,7 @@ export async function updateCategory(
   }
 }
 
-export async function deleteCategory(id: number) {
+export async function deleteCategory(id: string) {
   try {
     await db.delete(categories).where(eq(categories.id, id));
     revalidatePath("/business/register");

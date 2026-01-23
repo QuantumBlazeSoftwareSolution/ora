@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { AdminDashboardStats } from "@/app/actions/admin";
+
 import {
   DollarSign,
   ShoppingBag,
@@ -26,12 +29,11 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
-import { Button } from "@/components/ui/button";
 
-export function DashboardGrid({ stats }: { stats: any }) {
+export function DashboardGrid({ stats }: { stats: AdminDashboardStats }) {
   // Mock trend data for sparklines
   const generateSparkline = () =>
-    Array.from({ length: 10 }, (_, i) => ({
+    Array.from({ length: 10 }, () => ({
       value: Math.floor(Math.random() * 100) + 50,
     }));
 

@@ -12,7 +12,7 @@ import { Lightbulb, Share2, Star, Target } from "lucide-react";
 
 export function MarketingStrategy() {
   return (
-    <Card className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20 shadow-lg relative overflow-hidden">
+    <Card className="bg-linear-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20 shadow-lg relative overflow-hidden">
       {/* Decorative Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
 

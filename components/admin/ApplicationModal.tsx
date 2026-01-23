@@ -120,7 +120,7 @@ export function ApplicationModal({
 
         <div className="relative w-full h-full flex flex-col bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl overflow-hidden">
           {/* Header Section with Background */}
-          <div className="relative shrink-0 h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-transparent p-8 flex flex-col justify-end border-b border-border/50">
+          <div className="relative shrink-0 h-32 bg-linear-to-r from-primary/20 via-primary/5 to-transparent p-8 flex flex-col justify-end border-b border-border/50">
             <div className="absolute top-6 right-6 z-10">
               <Badge
                 variant={
@@ -221,7 +221,7 @@ export function ApplicationModal({
                       General
                     </Badge>
                   </div>
-                  <div className="bg-gradient-to-br from-amber-500/10 to-transparent p-4 rounded-xl border border-amber-500/20 flex justify-between items-center">
+                  <div className="bg-linear-to-br from-amber-500/10 to-transparent p-4 rounded-xl border border-amber-500/20 flex justify-between items-center">
                     <div>
                       <label className="text-xs text-amber-600/70 block mb-1 font-medium">
                         Selected Plan
@@ -306,7 +306,7 @@ export function ApplicationModal({
             </div>
 
             {/* Sidebar Actions */}
-            <div className="w-full lg:w-96 bg-muted/30 border-t lg:border-l lg:border-t-0 p-8 flex flex-col gap-6 backdrop-blur-xl flex-shrink-0">
+            <div className="w-full lg:w-96 bg-muted/30 border-t lg:border-l lg:border-t-0 p-8 flex flex-col gap-6 backdrop-blur-xl shrink-0">
               <div>
                 <h3 className="font-bold text-foreground mb-4">Actions</h3>
                 {application.status === "pending" ? (

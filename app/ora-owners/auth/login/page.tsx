@@ -25,7 +25,7 @@ function SubmitButton() {
 }
 
 export default function AdminLoginPage() {
-  // @ts-ignore
+  // @ts-expect-error
   const [state, dispatch] = useActionState(loginAction, {
     error: "",
     success: false,

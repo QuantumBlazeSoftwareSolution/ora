@@ -18,9 +18,12 @@ import {
   Store as StoreIcon,
 } from "lucide-react";
 
+import { StoreWithDetails } from "@/db/schemas/stores";
+import { Category } from "@/db/schemas/categories";
+
 interface StoreBrowserProps {
-  initialStores: any[];
-  categories: any[];
+  initialStores: StoreWithDetails[];
+  categories: Category[];
 }
 
 export function StoreBrowser({ initialStores, categories }: StoreBrowserProps) {

@@ -230,14 +230,40 @@ export async function getAdminStats() {
     }
   });
 
+  // Recent Apps with details
+  const recentAppsResult = await db
+    .select({
+      application: businessApplications,
+      category: categories,
+      subscription: subscriptions,
+    })
+    .from(businessApplications)
+    .leftJoin(categories, eq(businessApplications.categoryId, categories.id))
+    .leftJoin(
+      subscriptions,
+      eq(businessApplications.subscriptionId, subscriptions.id)
+    )
+    .orderBy(desc(businessApplications.createdAt))
+    .limit(5);
+
+  const recentApps: BusinessApplicationWithDetails[] = recentAppsResult.map(
+    (row) => ({
+      ...row.application,
+      category: row.category,
+      subscription: row.subscription,
+    })
+  );
+
   return {
     totalRevenue: estimatedRevenue,
     activeStores: activeStores.length,
     pendingApps: allApps.filter((a) => a.status === "pending").length,
     totalUsers: allUsers.length,
-    recentApps: allApps.slice(0, 5), // Most recent 5
+    recentApps: recentApps,
   };
 }
+
+export type AdminDashboardStats = Awaited<ReturnType<typeof getAdminStats>>;
 
 export async function getAllUsers() {
   return await db.select().from(users).orderBy(desc(users.createdAt));
@@ -249,6 +275,7 @@ export async function getAllStores() {
     with: {
       user: true,
       subscription: true,
+      category: true,
     },
   });
 }

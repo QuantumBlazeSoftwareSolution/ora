@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function updateStore(
-  storeId: number,
+  storeId: string,
   data: Partial<typeof stores.$inferInsert>
 ) {
   try {

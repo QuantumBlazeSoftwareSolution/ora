@@ -35,7 +35,7 @@ export default async function DashboardPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-4xl font-heading font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-heading font-bold tracking-tight bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
             Overview
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
         <div className="space-y-8">
           <MarketingStrategy />
 
-          <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border-blue-500/20 shadow-lg">
+          <Card className="bg-linear-to-br from-blue-500/10 to-purple-500/5 border-blue-500/20 shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>

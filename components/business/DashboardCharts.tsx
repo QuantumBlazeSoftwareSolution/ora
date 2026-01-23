@@ -27,8 +27,8 @@ import { TrendingUp, Users, ArrowUpRight } from "lucide-react";
 
 interface DashboardChartsProps {
   data: {
-    revenue: any[];
-    traffic: any[];
+    revenue: { name: string; value: number }[];
+    traffic: { name: string; value: number; fill: string }[];
   };
 }
 
@@ -150,7 +150,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {data.traffic.map((entry: any, index: number) => (
+                  {data.traffic.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.fill}
@@ -163,7 +163,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
             </ResponsiveContainer>
           </div>
           <div className="flex justify-center gap-4 mt-4 flex-wrap">
-            {data.traffic.map((entry: any) => (
+            {data.traffic.map((entry) => (
               <div
                 key={entry.name}
                 className="flex items-center gap-2 text-xs text-muted-foreground"

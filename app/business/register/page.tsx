@@ -39,7 +39,7 @@ const step2Schema = z.object({
       /^[a-z0-9-]+$/,
       "Only lowercase letters, numbers, and dashes allowed"
     ),
-  categoryId: z.number().min(1, "Please select a category"),
+  categoryId: z.string().min(1, "Please select a category"),
 });
 
 // Mock Step 3 validation (File uploads handled separately in state for MVP)
@@ -49,7 +49,7 @@ type FormData = z.infer<typeof step1Schema> &
   z.infer<typeof step2Schema> & {
     nicUrl?: string;
     businessRegUrl?: string;
-    subscriptionId: number;
+    subscriptionId: string;
   };
 
 const ITEMS_PER_PAGE = 6;
@@ -113,7 +113,7 @@ export default function RegisterWizard() {
     defaultValues: {
       storeName: formData.storeName || "",
       storeSlug: formData.storeSlug || "",
-      categoryId: formData.categoryId || 0,
+      categoryId: formData.categoryId || "",
     },
   });
 
@@ -142,7 +142,7 @@ export default function RegisterWizard() {
   };
 
   // State for Step 4 Selection
-  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const handleSubmitRegistration = async () => {
     if (!selectedPlanId) return;

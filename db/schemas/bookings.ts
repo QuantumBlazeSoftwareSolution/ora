@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 import { services } from "./services";
 import { bookingStatusEnum } from "./enum-types";
