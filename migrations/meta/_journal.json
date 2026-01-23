@@ -71,6 +71,20 @@
       "when": 1768574141682,
       "tag": "0010_graceful_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1769166201570,
+      "tag": "0011_brave_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1769166402116,
+      "tag": "0012_nosy_freak",
+      "breakpoints": true
     }
   ]
 }

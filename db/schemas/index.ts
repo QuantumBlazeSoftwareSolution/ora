@@ -10,3 +10,4 @@ export * from "./verifications";
 export * from "./subscriptions";
 export * from "./categories";
 export * from "./business-applications";
+export * from "./admins";

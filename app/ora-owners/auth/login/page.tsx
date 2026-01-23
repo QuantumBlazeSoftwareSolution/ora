@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import { loginAction } from "@/app/actions/auth";
+import { adminLoginAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ function SubmitButton() {
 
 export default function AdminLoginPage() {
   // @ts-expect-error
-  const [state, dispatch] = useActionState(loginAction, {
+  const [state, dispatch] = useActionState(adminLoginAction, {
     error: "",
     success: false,
   });

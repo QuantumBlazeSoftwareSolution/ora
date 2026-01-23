@@ -37,7 +37,7 @@ const step2Schema = z.object({
     .min(2, "Store URL is required")
     .regex(
       /^[a-z0-9-]+$/,
-      "Only lowercase letters, numbers, and dashes allowed"
+      "Only lowercase letters, numbers, and dashes allowed",
     ),
   categoryId: z.string().min(1, "Please select a category"),
 });
@@ -173,7 +173,7 @@ export default function RegisterWizard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 selection:bg-purple-100">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 selection:bg-purple-100 text-gray-900">
       {/* Success Popup */}
       <AnimatePresence>
         {showSuccessPopup && (
@@ -214,23 +214,39 @@ export default function RegisterWizard() {
 
       <div className="w-full max-w-2xl">
         {/* Progress Header */}
-        <div className="mb-8 flex justify-between items-center px-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  step >= i
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-200 text-gray-500"
-                }`}
-              >
-                {i}
+        <div className="mb-8 flex justify-between items-center px-2 text-gray-900 overflow-x-auto">
+          {[
+            { id: 1, label: "Identity" },
+            { id: 2, label: "Store" },
+            { id: 3, label: "Verify" },
+            { id: 4, label: "Plan" },
+          ].map((s) => (
+            <div key={s.id} className="flex gap-2 items-center min-w-fit">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    step >= s.id
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-200 text-gray-500"
+                  }`}
+                >
+                  {s.id}
+                </div>
+                <span
+                  className={`text-xs font-medium ${
+                    step >= s.id ? "text-purple-700" : "text-gray-400"
+                  }`}
+                >
+                  {s.label}
+                </span>
               </div>
-              <div
-                className={`h-1 w-8 rounded-full transition-all ${
-                  step > i ? "bg-purple-600" : "bg-gray-200"
-                }`}
-              ></div>
+              {s.id < 4 && (
+                <div
+                  className={`h-1 w-8 md:w-16 rounded-full transition-all mb-4 ${
+                    step > s.id ? "bg-purple-600" : "bg-gray-200"
+                  }`}
+                ></div>
+              )}
             </div>
           ))}
         </div>
@@ -389,8 +405,8 @@ export default function RegisterWizard() {
                           setCategoryPage(
                             Math.min(
                               Math.ceil(categories.length / ITEMS_PER_PAGE) - 1,
-                              categoryPage + 1
-                            )
+                              categoryPage + 1,
+                            ),
                           )
                         }
                         disabled={
@@ -426,7 +442,7 @@ export default function RegisterWizard() {
                       {categories
                         .slice(
                           categoryPage * ITEMS_PER_PAGE,
-                          (categoryPage + 1) * ITEMS_PER_PAGE
+                          (categoryPage + 1) * ITEMS_PER_PAGE,
                         )
                         .map((cat) => (
                           <button
@@ -570,8 +586,8 @@ export default function RegisterWizard() {
                           isSelected
                             ? "border-2 border-black bg-gray-50 shadow-xl ring-1 ring-black/5"
                             : isGrowth
-                            ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100 opacity-90"
-                            : "border-gray-200 hover:border-black hover:bg-gray-50 opacity-90"
+                              ? "border-2 border-purple-500 bg-purple-50/10 hover:shadow-xl hover:shadow-purple-100 opacity-90"
+                              : "border-gray-200 hover:border-black hover:bg-gray-50 opacity-90"
                         }`}
                       >
                         {plan.highlight && (
@@ -586,8 +602,8 @@ export default function RegisterWizard() {
                                 isGrowth
                                   ? "bg-purple-100 text-purple-600"
                                   : plan.slug === "empire"
-                                  ? "bg-black text-white"
-                                  : "bg-gray-100 text-gray-500"
+                                    ? "bg-black text-white"
+                                    : "bg-gray-100 text-gray-500"
                               }`}
                             >
                               {plan.slug === "growth" ? (
@@ -610,8 +626,8 @@ export default function RegisterWizard() {
                                 {plan.billingPeriod === "forever"
                                   ? "For beginners"
                                   : plan.slug === "empire"
-                                  ? "Dominate market"
-                                  : "Scale faster"}
+                                    ? "Dominate market"
+                                    : "Scale faster"}
                               </p>
                             </div>
                           </div>
