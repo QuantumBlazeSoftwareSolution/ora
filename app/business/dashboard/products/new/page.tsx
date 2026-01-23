@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2, Upload, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function NewProductPage() {
   const [name, setName] = useState("");
@@ -46,7 +47,7 @@ export default function NewProductPage() {
       router.push("/business/dashboard/products");
     } catch (error) {
       console.error(error);
-      alert("Failed to create product");
+      toast.error("Failed to create product");
     } finally {
       setLoading(false);
     }

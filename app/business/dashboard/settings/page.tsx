@@ -41,7 +41,6 @@ export default async function SettingsPage() {
       name,
       description,
       logoUrl,
-      themeColor,
     });
 
     revalidatePath("/business/dashboard/settings");
@@ -97,26 +96,6 @@ export default async function SettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   Direct image URL for now.
                 </p>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="themeColor">Theme Color (Hex)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="themeColor"
-                    name="themeColor"
-                    defaultValue={store.themeColor || "#000000"}
-                    className="w-32"
-                    type="color"
-                  />
-                  <Input
-                    name="themeColorText"
-                    defaultValue={store.themeColor || "#000000"}
-                    className="flex-1"
-                    readOnly
-                    disabled
-                  />
-                </div>
               </div>
 
               <div className="flex justify-end">

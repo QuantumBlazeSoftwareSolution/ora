@@ -137,8 +137,8 @@ export default async function DashboardPage() {
                           {i === 0
                             ? "New Product Added"
                             : i === 1
-                            ? "Order #2034 Received"
-                            : "Updated Store Settings"}
+                              ? "Order #2034 Received"
+                              : "Updated Store Settings"}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           2 hours ago
@@ -193,7 +193,16 @@ export default async function DashboardPage() {
   );
 }
 
-function KPI_Card({ title, value, icon, trend, color, bg }: any) {
+interface KPICardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend: string;
+  color: string;
+  bg: string;
+}
+
+function KPI_Card({ title, value, icon, trend, color, bg }: KPICardProps) {
   return (
     <Card className="bg-card/50 border-white/5 shadow-lg backdrop-blur-sm hover:bg-card/80 transition-colors group">
       <CardContent className="p-6">

@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { businessApplications } from "@/db/schemas/business-applications";
+import { restrictedSlugs } from "@/db/schemas/restricted-slugs";
 import { eq } from "drizzle-orm";
 
 export async function submitBusinessApplication(data: {
@@ -27,6 +28,18 @@ export async function submitBusinessApplication(data: {
       return {
         success: false,
         error: "You already have a pending application.",
+      };
+    }
+
+    // Check Blacklist
+    const restricted = await db.query.restrictedSlugs.findFirst({
+      where: (slugs, { eq }) => eq(slugs.word, data.storeSlug.toLowerCase()),
+    });
+
+    if (restricted) {
+      return {
+        success: false,
+        error: "This store URL is unavailable. Please choose another.",
       };
     }
 
@@ -68,6 +81,24 @@ export async function submitBusinessApplication(data: {
             <p><strong>Slug:</strong> ${data.storeSlug}</p>
             <p>Please review it in the Admin Dashboard.</p>
             <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/ora-owners/applications">Go to Dashboard</a>
+          </div>
+        `,
+      });
+
+      // Send Receipt Email to Applicant
+      await transporter.sendMail({
+        from: '"Ora System" <no-reply@ora.lk>',
+        to: data.email,
+        subject: "We received your application! 🚀",
+        html: `
+          <div style="font-family: sans-serif; padding: 20px; color: #333;">
+            <h1 style="color: #6d28d9;">Application Received</h1>
+            <p>Hi ${data.name.split(" ")[0]},</p>
+            <p>Thanks for applying to register <strong>${data.storeName}</strong> with Ora.</p>
+            <p>Our team will review your application and documents shortly. You will receive another email once your store is approved.</p>
+            <p>If you have any questions, feel free to reply to this email.</p>
+            <br/>
+            <p>Best regards,<br/>The Ora Team</p>
           </div>
         `,
       });

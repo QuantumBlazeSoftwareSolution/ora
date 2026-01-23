@@ -16,8 +16,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2, Loader2, Search } from "lucide-react";
+import { toast } from "sonner";
 
 import { Category } from "@/db/schemas/categories";
 
@@ -52,7 +63,7 @@ export default function CategoriesPage() {
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.slug) {
-      alert("Name and Slug are required.");
+      toast.error("Name and Slug are required.");
       return;
     }
 
@@ -68,27 +79,31 @@ export default function CategoriesPage() {
         setIsOpen(false);
         resetForm();
         loadCategories();
+        toast.success(isEditing ? "Category updated" : "Category created");
       } else {
-        alert(res.error || "Operation failed");
+        toast.error(res.error || "Operation failed");
       }
     });
   };
 
-  const handleDelete = async (id: string) => {
-    if (
-      !confirm(
-        "Are you sure? This might break existing applications if linked."
-      )
-    )
-      return;
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const confirmDelete = (id: string) => {
+    setDeletingId(id);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
 
     startTransition(async () => {
-      const res = await deleteCategory(id);
+      const res = await deleteCategory(deletingId);
       if (res.success) {
+        toast.success("Category deleted");
         loadCategories();
       } else {
-        alert(res.error || "Failed to delete");
+        toast.error(res.error || "Failed to delete");
       }
+      setDeletingId(null);
     });
   };
 
@@ -110,7 +125,7 @@ export default function CategoriesPage() {
   };
 
   const filteredCategories = categories.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase())
+    c.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -187,6 +202,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm p-4">
+        {/* ... Search ... */}
         <div className="relative mb-4">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -243,7 +259,7 @@ export default function CategoriesPage() {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleDelete(cat.id)}
+                        onClick={() => confirmDelete(cat.id)}
                       >
                         <Trash2 size={14} />
                       </Button>
@@ -255,6 +271,34 @@ export default function CategoriesPage() {
           </div>
         )}
       </div>
+
+      <AlertDialog
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              category and may break existing stores linked to it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              disabled={isPending}
+            >
+              {isPending ? "Deleting..." : "Delete Category"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

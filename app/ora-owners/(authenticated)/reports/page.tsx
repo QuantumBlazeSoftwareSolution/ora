@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FileText, Download, Calendar, Filter } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -54,8 +55,8 @@ export default function ReportsPage() {
     setGenerating(id);
     // Simulate generation delay
     setTimeout(() => {
-      alert(
-        "Report generation is a simulated feature for this MVP. In production, this would trigger a server-side file generation."
+      toast.info(
+        "Report generation is a simulated feature for this MVP. In production, this would trigger a server-side file generation.",
       );
       setGenerating(null);
     }, 1500);

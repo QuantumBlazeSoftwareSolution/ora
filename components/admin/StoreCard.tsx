@@ -46,7 +46,7 @@ export function StoreCard({ store }: StoreCardProps) {
         <div
           className="absolute inset-0 transition-transform duration-700 group-hover:scale-110"
           style={{
-            background: `linear-gradient(135deg, ${store.themeColor} 0%, ${store.themeColor}dd 50%, #000 100%)`,
+            background: `linear-gradient(135deg, #000 0%, #333 100%)`,
           }}
         />
 
