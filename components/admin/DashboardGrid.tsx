@@ -324,7 +324,7 @@ function KpiCard({
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  data: any[];
+  data: { value: number }[]; // Assuming data structure
   color: string;
   trend: string;
   inverse?: boolean;

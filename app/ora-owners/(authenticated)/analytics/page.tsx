@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAdminStats } from "@/app/actions/admin";
+import { getAdminStats, BusinessApplicationWithDetails } from "@/app/actions/admin";
 import {
   TrendingUp,
   Users,
@@ -28,8 +28,19 @@ import {
   Pie,
 } from "recharts";
 
+interface AdminStats {
+  totalRevenue: number;
+  activeStores: number;
+  pendingApps: number;
+  totalUsers: number;
+  recentApps: BusinessApplicationWithDetails[];
+  // Optional for now as not returned by API yet
+  revenueData?: { name: string; value: number }[];
+  categoryData?: { name: string; value: number }[];
+}
+
 export default function AnalyticsPage() {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +48,26 @@ export default function AnalyticsPage() {
       try {
         const data = await getAdminStats();
         if (data) {
-          setStats(data);
+          // Mock chart data for now if missing
+          const detailedStats: AdminStats = {
+            ...data,
+            // Map pendingApps from API to pendingApps interface property if needed
+            // But API returns pendingApps directly now.
+            revenueData: [
+              { name: "Jan", value: 4000 },
+              { name: "Feb", value: 3000 },
+              { name: "Mar", value: 2000 },
+              { name: "Apr", value: 2780 },
+              { name: "May", value: 1890 },
+              { name: "Jun", value: 2390 },
+            ],
+            categoryData: [
+              { name: "Retail", value: 40 },
+              { name: "Food", value: 30 },
+              { name: "Services", value: 30 },
+            ],
+          };
+          setStats(detailedStats);
         }
       } catch (error) {
         console.error("Failed to load stats", error);
@@ -107,21 +137,21 @@ export default function AnalyticsPage() {
         />
         <MetricCard
           title="Total Users"
-          value={stats?.totalUsers}
+          value={stats?.totalUsers ?? 0}
           icon={<Users className="text-blue-500" />}
           trend={growth.users}
           description="Registered active users"
         />
         <MetricCard
           title="Active Stores"
-          value={stats?.activeStores}
+          value={stats?.activeStores ?? 0}
           icon={<ShoppingBag className="text-purple-500" />}
           trend={growth.stores}
           description="Live storefronts"
         />
         <MetricCard
           title="Pending Approvals"
-          value={stats?.pendingApprovals}
+          value={stats?.pendingApps ?? 0}
           icon={<Activity className="text-orange-500" />}
           trend={growth.apps}
           description="Awaiting review"
@@ -281,6 +311,15 @@ export default function AnalyticsPage() {
   );
 }
 
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend: number;
+  description: string;
+  inverseTrend?: boolean;
+}
+
 function MetricCard({
   title,
   value,
@@ -288,7 +327,7 @@ function MetricCard({
   trend,
   description,
   inverseTrend,
-}: any) {
+}: MetricCardProps) {
   const isPositive = trend > 0;
   // For things like "Pending Approvals", fewer is better (inverseTrend)
   const isGood = inverseTrend ? !isPositive : isPositive;

@@ -7,9 +7,10 @@ import { getServices } from "@/app/actions/services";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Service } from "@/db/schemas/services";
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

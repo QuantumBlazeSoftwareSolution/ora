@@ -42,9 +42,9 @@ export default function SignupPage() {
 
       // Redirect to Home for customers
       router.push("/");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Error creating account.");
+      setError((err as Error).message || "Error creating account.");
     } finally {
       setLoading(false);
     }

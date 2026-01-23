@@ -14,10 +14,13 @@ import {
   Crown,
   Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { Subscription } from "@/db/schemas/subscriptions";
+import { Category } from "@/db/schemas/categories";
 import { useRouter } from "next/navigation";
 import { getSubscriptions } from "@/app/actions/subscriptions";
 import { submitBusinessApplication } from "@/app/actions/applications";
@@ -58,10 +61,10 @@ const ITEMS_PER_PAGE = 6;
 export default function RegisterWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [plans, setPlans] = useState<any[]>([]);
+  const [plans, setPlans] = useState<Subscription[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
 
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
   // Category Pagination
@@ -118,19 +121,19 @@ export default function RegisterWizard() {
     },
   });
 
-  const onStep1Submit = (data: any) => {
+  const onStep1Submit = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
     setStep(2);
   };
 
-  const onStep2Submit = (data: any) => {
+  const onStep2Submit = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
     setStep(3);
   };
 
   const onStep3Submit = () => {
     if (!nicFrontUrl || !nicBackUrl) {
-      alert("Please upload both front and back images of your NIC/ID.");
+      toast.error("Please upload both front and back images of your NIC/ID.");
       return;
     }
     setStep(4);
@@ -163,7 +166,7 @@ export default function RegisterWizard() {
     if (result.success) {
       setShowSuccessPopup(true);
     } else {
-      alert(result.error || "Application failed");
+      toast.error(result.error || "Application failed");
     }
   };
 

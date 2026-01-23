@@ -14,7 +14,10 @@ import { SignJWT } from "jose";
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "fallback_secret",
 );
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://ora-store-lk.vercel.app"
+    : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 // --- Email Transporter ---
 const transporter = nodemailer.createTransport({

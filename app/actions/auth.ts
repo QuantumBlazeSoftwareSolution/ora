@@ -11,7 +11,7 @@ import {
 } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export async function loginAction(prevState: any, formData: FormData) {
+export async function loginAction(prevState: unknown, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -44,7 +44,7 @@ export async function loginAction(prevState: any, formData: FormData) {
   }
 }
 
-export async function adminLoginAction(prevState: any, formData: FormData) {
+export async function adminLoginAction(prevState: unknown, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 

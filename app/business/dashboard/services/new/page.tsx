@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function NewServicePage() {
   const [name, setName] = useState("");
@@ -38,7 +39,7 @@ export default function NewServicePage() {
       router.push("/business/dashboard/services");
     } catch (error) {
       console.error(error);
-      alert("Failed to create service");
+      toast.error("Failed to create service");
     } finally {
       setLoading(false);
     }

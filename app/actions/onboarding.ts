@@ -195,9 +195,10 @@ export async function registerBusiness(data: {
     await createSession(newUser.id, "merchant");
 
     return { success: true, storeId: newStore.id };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Registration failed:", error);
-    if (error.code === "23505") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((error as any).code === "23505") {
       return { success: false, error: "Store URL or Email is already taken." };
     }
     return { success: false, error: "Registration failed. Please try again." };

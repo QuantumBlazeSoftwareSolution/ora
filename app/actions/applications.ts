@@ -71,6 +71,24 @@ export async function submitBusinessApplication(data: {
           </div>
         `,
       });
+
+      // Send Receipt Email to Applicant
+      await transporter.sendMail({
+        from: '"Ora System" <no-reply@ora.lk>',
+        to: data.email,
+        subject: "We received your application! 🚀",
+        html: `
+          <div style="font-family: sans-serif; padding: 20px; color: #333;">
+            <h1 style="color: #6d28d9;">Application Received</h1>
+            <p>Hi ${data.name.split(" ")[0]},</p>
+            <p>Thanks for applying to register <strong>${data.storeName}</strong> with Ora.</p>
+            <p>Our team will review your application and documents shortly. You will receive another email once your store is approved.</p>
+            <p>If you have any questions, feel free to reply to this email.</p>
+            <br/>
+            <p>Best regards,<br/>The Ora Team</p>
+          </div>
+        `,
+      });
     } catch (emailError) {
       console.error("Failed to send admin notification:", emailError);
       // Don't block success response
