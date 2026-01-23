@@ -1,0 +1,1 @@
+ALTER TABLE "verifications" ADD COLUMN "nic_urls" text[] NOT NULL;

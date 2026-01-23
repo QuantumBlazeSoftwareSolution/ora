@@ -18,6 +18,9 @@ export const stores = pgTable("stores", {
   phoneNumber: text("phone_number"), // WhatsApp Number
   status: storeStatusEnum("status").default("pending").notNull(),
   subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
+  // Verification Archive
+  nicUrls: text("nic_urls").array(),
+  businessRegUrl: text("business_reg_url"),
   themeColor: text("theme_color").default("#000000"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")

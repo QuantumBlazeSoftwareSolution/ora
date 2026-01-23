@@ -77,7 +77,7 @@ export function ApplicationList({
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    {app.nicUrl && (
+                    {app.nicUrls && app.nicUrls.length > 0 && (
                       <span
                         className="p-1 bg-blue-500/10 rounded text-blue-500"
                         title="NIC Uploaded"
@@ -93,15 +93,16 @@ export function ApplicationList({
                         <BadgeCheck size={14} />
                       </span>
                     )}
-                    {!app.nicUrl && !app.businessRegUrl && (
-                      <span className="text-muted-foreground text-xs">-</span>
-                    )}
+                    {(!app.nicUrls || app.nicUrls.length === 0) &&
+                      !app.businessRegUrl && (
+                        <span className="text-muted-foreground text-xs">-</span>
+                      )}
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
-                      app.status
+                      app.status,
                     )}`}
                   >
                     {app.status}

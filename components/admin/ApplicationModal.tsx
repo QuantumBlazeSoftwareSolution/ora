@@ -41,6 +41,7 @@ export function ApplicationModal({
   const [isPending, startTransition] = useTransition();
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectInput, setShowRejectInput] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   if (!application) return null;
 
@@ -130,8 +131,8 @@ export function ApplicationModal({
                   application.status === "pending"
                     ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
                     : application.status === "approved"
-                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                    : "bg-slate-500/10 text-slate-500"
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      : "bg-slate-500/10 text-slate-500"
                 }`}
               >
                 {application.status}
@@ -240,31 +241,28 @@ export function ApplicationModal({
                   <FileText size={14} /> Legal Documents
                 </h3>
                 <div className="flex flex-wrap gap-4">
-                  {application.nicUrl ? (
-                    <Button
-                      variant="outline"
-                      className="h-auto py-3 px-4 rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 gap-3"
-                      asChild
-                    >
-                      <a
-                        href={application.nicUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                  {application.nicUrls && application.nicUrls.length > 0 ? (
+                    application.nicUrls.map((url, idx) => (
+                      <Button
+                        key={idx}
+                        variant="outline"
+                        className="h-auto py-3 px-4 rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 gap-3"
+                        onClick={() => setPreviewUrl(url)}
                       >
                         <div className="bg-blue-500/20 text-blue-500 p-2 rounded-lg">
                           <FileText size={18} />
                         </div>
                         <div className="text-left">
                           <p className="font-semibold text-foreground text-sm">
-                            National ID
+                            NIC / ID ({idx + 1})
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground flex items-center">
                             View Document{" "}
                             <ExternalLink size={10} className="inline ml-1" />
                           </p>
                         </div>
-                      </a>
-                    </Button>
+                      </Button>
+                    ))
                   ) : (
                     <div className="p-4 rounded-xl border border-dashed border-border text-muted-foreground text-sm flex items-center gap-2">
                       <XCircle size={16} /> NIC Missing
@@ -275,26 +273,20 @@ export function ApplicationModal({
                     <Button
                       variant="outline"
                       className="h-auto py-3 px-4 rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 gap-3"
-                      asChild
+                      onClick={() => setPreviewUrl(application.businessRegUrl!)}
                     >
-                      <a
-                        href={application.businessRegUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="bg-purple-500/20 text-purple-500 p-2 rounded-lg">
-                          <FileText size={18} />
-                        </div>
-                        <div className="text-left">
-                          <p className="font-semibold text-foreground text-sm">
-                            Business Reg
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            View Document{" "}
-                            <ExternalLink size={10} className="inline ml-1" />
-                          </p>
-                        </div>
-                      </a>
+                      <div className="bg-purple-500/20 text-purple-500 p-2 rounded-lg">
+                        <FileText size={18} />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold text-foreground text-sm">
+                          Business Reg
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center">
+                          View Document{" "}
+                          <ExternalLink size={10} className="inline ml-1" />
+                        </p>
+                      </div>
                     </Button>
                   ) : (
                     <div className="p-4 rounded-xl border border-dashed border-border text-muted-foreground text-sm flex items-center gap-2">
@@ -394,6 +386,57 @@ export function ApplicationModal({
               </div>
             </div>
           </div>
+        </div>
+      </DialogContent>
+      <DocumentPreviewDialog
+        isOpen={!!previewUrl}
+        onClose={() => setPreviewUrl(null)}
+        url={previewUrl || ""}
+      />
+    </Dialog>
+  );
+}
+
+function DocumentPreviewDialog({
+  isOpen,
+  onClose,
+  url,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  url: string;
+}) {
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      {/* 
+        DialogContent already has centered positioning: fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]
+        We just need to ensure dimensions and overflow. 
+      */}
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-4xl w-full max-h-[90vh] bg-zinc-950 border border-zinc-800 p-0 overflow-hidden shadow-2xl"
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all z-50 shadow-lg border border-white/10"
+        >
+          <XCircle size={24} />
+        </button>
+
+        <div className="w-full h-full min-h-[50vh] flex items-center justify-center p-4 bg-zinc-950/50 backdrop-blur-sm">
+          {url.toLowerCase().endsWith(".pdf") ? (
+            <iframe
+              src={url}
+              className="w-full h-[80vh] rounded-lg border border-zinc-700"
+            />
+          ) : (
+            // Use standard img tag for simplicity to ensure object-contain works as expected
+            <img
+              src={url}
+              alt="Document Preview"
+              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

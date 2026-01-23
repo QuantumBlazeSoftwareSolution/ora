@@ -12,7 +12,7 @@ export async function submitBusinessApplication(data: {
   storeSlug: string;
   categoryId: string;
   subscriptionId: string;
-  nicUrl: string;
+  nicUrls: string[];
   businessRegUrl?: string;
 }) {
   try {
@@ -38,10 +38,43 @@ export async function submitBusinessApplication(data: {
       storeSlug: data.storeSlug,
       categoryId: data.categoryId,
       subscriptionId: data.subscriptionId,
-      nicUrl: data.nicUrl,
+      nicUrls: data.nicUrls,
       businessRegUrl: data.businessRegUrl,
       status: "pending",
     });
+
+    // Send Email to Admin
+    try {
+      const transporter = require("nodemailer").createTransport({
+        host: process.env.SMTP_HOST || "smtp.gmail.com",
+        port: parseInt(process.env.SMTP_PORT || "587"),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: '"Ora System" <no-reply@ora.lk>',
+        to: process.env.SMTP_USER, // Sending to admin email (using SMTP_USER as admin for now)
+        subject: `New Business Application: ${data.storeName}`,
+        html: `
+          <div style="font-family: sans-serif; padding: 20px;">
+            <h1>New Business Application Received</h1>
+            <p><strong>Store Name:</strong> ${data.storeName}</p>
+            <p><strong>Applicant:</strong> ${data.name}</p>
+            <p><strong>Email:</strong> ${data.email}</p>
+            <p><strong>Slug:</strong> ${data.storeSlug}</p>
+            <p>Please review it in the Admin Dashboard.</p>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/ora-owners/applications">Go to Dashboard</a>
+          </div>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Failed to send admin notification:", emailError);
+      // Don't block success response
+    }
 
     return { success: true };
   } catch (error) {
