@@ -10,11 +10,19 @@ import {
   CreditCard,
 } from "lucide-react";
 
-export default function AdminLayout({
+import { getCurrentUser } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
+
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+  if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
+    redirect("/ora-owners/auth/login");
+  }
+
   return (
     <div className="min-h-screen bg-background flex dark">
       {/* Admin Sidebar */}
@@ -87,6 +95,20 @@ export default function AdminLayout({
             <FileText size={18} />
             Reports
           </Link>
+
+          {/* Super Admin Only */}
+          {user.role === "super_admin" && (
+            <>
+              <div className="h-px bg-border my-2 mx-3" />
+              <Link
+                href="/ora-owners/admins"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+              >
+                <Users size={18} />
+                Admins
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="text-xs text-muted-foreground border-t border-border pt-4">

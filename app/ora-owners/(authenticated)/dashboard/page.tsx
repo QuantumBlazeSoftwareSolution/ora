@@ -5,10 +5,9 @@ import { ApplicationList } from "@/components/admin/ApplicationList";
 import { DashboardGrid } from "@/components/admin/DashboardGrid";
 
 export default async function AdminDashboard() {
+  // Auth check moved to layout.tsx
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
-    redirect("/ora-owners/auth/login");
-  }
+  if (!user) return null; // Should be handled by layout, but safe check for TS
 
   const stats = await getAdminStats();
   // stats is inferred as AdminDashboardStats automatically

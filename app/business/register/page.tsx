@@ -181,7 +181,7 @@ export default function RegisterWizard() {
               animate={{ opacity: 1, scale: 1 }}
               className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl text-center relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
+              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-purple-500 to-indigo-500"></div>
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
