@@ -12,7 +12,7 @@ import nodemailer from "nodemailer";
 import { SignJWT } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback_secret"
+  process.env.JWT_SECRET || "fallback_secret",
 );
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -46,7 +46,7 @@ export async function getApplications(): Promise<
     .leftJoin(categories, eq(businessApplications.categoryId, categories.id))
     .leftJoin(
       subscriptions,
-      eq(businessApplications.subscriptionId, subscriptions.id)
+      eq(businessApplications.subscriptionId, subscriptions.id),
     )
     .orderBy(desc(businessApplications.createdAt));
 
@@ -116,10 +116,13 @@ export async function approveApplication(applicationId: string) {
       .returning();
 
     // 3. Create Verification (if docs exist)
-    if (app.nicUrl || app.businessRegUrl) {
+    // 3. Create Verification (if docs exist)
+    // Updated to use nicUrls (array)
+    const hasNic = app.nicUrls && app.nicUrls.length > 0;
+    if (hasNic || app.businessRegUrl) {
       await db.insert(verifications).values({
         storeId: newStore.id,
-        nicUrl: app.nicUrl || "",
+        nicUrls: app.nicUrls || [],
         businessRegUrl: app.businessRegUrl,
       });
     }
@@ -241,7 +244,7 @@ export async function getAdminStats() {
     .leftJoin(categories, eq(businessApplications.categoryId, categories.id))
     .leftJoin(
       subscriptions,
-      eq(businessApplications.subscriptionId, subscriptions.id)
+      eq(businessApplications.subscriptionId, subscriptions.id),
     )
     .orderBy(desc(businessApplications.createdAt))
     .limit(5);
@@ -251,7 +254,7 @@ export async function getAdminStats() {
       ...row.application,
       category: row.category,
       subscription: row.subscription,
-    })
+    }),
   );
 
   return {

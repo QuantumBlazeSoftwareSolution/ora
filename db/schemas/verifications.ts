@@ -6,7 +6,7 @@ export const verifications = pgTable("verifications", {
   storeId: uuid("store_id")
     .references(() => stores.id)
     .notNull(),
-  nicUrl: text("nic_url").notNull(), // National ID is required
+  nicUrls: text("nic_urls").array().notNull(), // National ID is required [front, back]
   businessRegUrl: text("business_reg_url"), // BR is optional
   otherDocUrl: text("other_doc_url"), // Any other supporting doc
   adminNotes: text("admin_notes"),

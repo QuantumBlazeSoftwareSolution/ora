@@ -187,7 +187,7 @@ export async function registerBusiness(data: {
     // 3. Create Verification Record
     await db.insert(verifications).values({
       storeId: newStore.id,
-      nicUrl: nicUrl,
+      nicUrls: [nicUrl],
       businessRegUrl: businessRegUrl,
     });
 

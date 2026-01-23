@@ -19,8 +19,7 @@ interface FileUploadProps {
 }
 
 export function FileUpload({
-  bucketName = "uploads",
-  folder = "misc",
+  bucketName = "documents",
   onUploadComplete,
   onUploadError,
   className,
@@ -72,7 +71,8 @@ export function FileUpload({
 
       const timestamp = new Date().getTime();
       const fileExt = file.name.split(".").pop();
-      const fileName = `${folder}/${timestamp}-${Math.random()
+      // Generate clean filename
+      const fileName = `${timestamp}-${Math.random()
         .toString(36)
         .substring(2)}.${fileExt}`;
 

@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { getSubscriptions } from "@/app/actions/subscriptions";
 import { submitBusinessApplication } from "@/app/actions/applications";
 import { getCategories } from "@/app/actions/categories";
+import { FileUpload } from "@/components/ui/file-upload";
 
 // --- Validation Schemas --- //
 const step1Schema = z.object({
@@ -47,7 +48,7 @@ const step3Schema = z.object({});
 
 type FormData = z.infer<typeof step1Schema> &
   z.infer<typeof step2Schema> & {
-    nicUrl?: string;
+    nicUrls?: string[];
     businessRegUrl?: string;
     subscriptionId: string;
   };
@@ -95,9 +96,9 @@ export default function RegisterWizard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  // File State
-  const [nicFile, setNicFile] = useState<File | null>(null);
-  const [brFile, setBrFile] = useState<File | null>(null);
+  const [nicFrontUrl, setNicFrontUrl] = useState<string | null>(null);
+  const [nicBackUrl, setNicBackUrl] = useState<string | null>(null);
+  const [brUrl, setBrUrl] = useState<string | null>(null);
 
   // Forms
   const form1 = useForm({
@@ -128,16 +129,10 @@ export default function RegisterWizard() {
   };
 
   const onStep3Submit = () => {
-    if (!nicFile) {
-      alert("Please upload your NIC/ID copy to proceed."); // MVP Validation
+    if (!nicFrontUrl || !nicBackUrl) {
+      alert("Please upload both front and back images of your NIC/ID.");
       return;
     }
-    // Mock upload URL generation
-    setFormData((prev) => ({
-      ...prev,
-      nicUrl: "https://mock.url/nic.jpg",
-      businessRegUrl: brFile ? "https://mock.url/br.jpg" : undefined,
-    }));
     setStep(4);
   };
 
@@ -159,8 +154,8 @@ export default function RegisterWizard() {
       storeSlug: formData.storeSlug!,
       categoryId: formData.categoryId!,
       subscriptionId: selectedPlanId,
-      nicUrl: formData.nicUrl!,
-      businessRegUrl: formData.businessRegUrl,
+      nicUrls: [nicFrontUrl!, nicBackUrl!],
+      businessRegUrl: brUrl || undefined,
     });
 
     setIsSubmitting(false);
@@ -448,9 +443,11 @@ export default function RegisterWizard() {
                           <button
                             type="button"
                             key={cat.id}
-                            onClick={() => form2.setValue("categoryId", cat.id)}
+                            onClick={() =>
+                              form2.setValue("categoryId", String(cat.id))
+                            }
                             className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
-                              form2.watch("categoryId") === cat.id
+                              form2.watch("categoryId") === String(cat.id)
                                 ? "border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500"
                                 : "border-gray-200 hover:border-purple-200 hover:bg-gray-50 text-gray-600"
                             }`}
@@ -496,52 +493,40 @@ export default function RegisterWizard() {
               </div>
 
               <div className="space-y-6">
-                {/* NIC Upload */}
-                <div className="border border-dashed border-gray-300 rounded-2xl p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
-                  <input
-                    type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    onChange={(e) => setNicFile(e.target.files?.[0] || null)}
+                {/* NIC Upload (Front & Back) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FileUpload
+                    label="NIC Front Side"
+                    bucketName="documents"
+                    allowedTypes={["image/png", "image/jpeg", "image/jpg"]}
+                    onUploadComplete={(url) => setNicFrontUrl(url)}
+                    className="bg-white"
                   />
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-600">
-                    <User size={20} />
-                  </div>
-                  <h3 className="font-semibold text-gray-900">
-                    Upload NIC / Passport
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {nicFile
-                      ? nicFile.name
-                      : "Required for identity verification"}
-                  </p>
-                  {nicFile && (
-                    <div className="mt-2 text-green-600 text-sm font-medium flex items-center justify-center gap-1">
-                      <CheckCircle size={14} /> Attached
-                    </div>
-                  )}
+                  <FileUpload
+                    label="NIC Back Side"
+                    bucketName="documents"
+                    allowedTypes={["image/png", "image/jpeg", "image/jpg"]}
+                    onUploadComplete={(url) => setNicBackUrl(url)}
+                    className="bg-white"
+                  />
                 </div>
 
                 {/* BR Upload */}
-                <div className="border border-dashed border-gray-300 rounded-2xl p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
-                  <input
-                    type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    onChange={(e) => setBrFile(e.target.files?.[0] || null)}
-                  />
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-purple-600">
-                    <Store size={20} />
-                  </div>
-                  <h3 className="font-semibold text-gray-900">
-                    Business Registration
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {brFile ? brFile.name : "Optional. Increases trust score."}
+                <div className="pt-2">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Business Registration (Optional)
                   </p>
-                  {brFile && (
-                    <div className="mt-2 text-green-600 text-sm font-medium flex items-center justify-center gap-1">
-                      <CheckCircle size={14} /> Attached
-                    </div>
-                  )}
+                  <FileUpload
+                    label="Upload BR Document"
+                    bucketName="documents"
+                    allowedTypes={[
+                      "image/png",
+                      "image/jpeg",
+                      "application/pdf",
+                    ]}
+                    onUploadComplete={(url) => setBrUrl(url)}
+                    className="bg-white"
+                  />
                 </div>
 
                 <button

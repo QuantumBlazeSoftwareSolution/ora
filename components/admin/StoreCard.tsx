@@ -68,7 +68,7 @@ export function StoreCard({ store }: StoreCardProps) {
         <div className="absolute top-3 left-3">
           <Badge
             className={`backdrop-blur-md shadow-sm capitalize ${getStatusColor(
-              store.status
+              store.status,
             )}`}
           >
             {store.status === "approved" ? "Active" : store.status}
@@ -102,7 +102,7 @@ export function StoreCard({ store }: StoreCardProps) {
           <Badge
             variant="outline"
             className={`uppercase text-[10px] tracking-wider px-2 py-0.5 ${getSubscriptionBadge(
-              store.subscription?.name || "Starter"
+              store.subscription?.name || "Starter",
             )}`}
           >
             {store.subscription?.name || "Free"}
@@ -113,16 +113,16 @@ export function StoreCard({ store }: StoreCardProps) {
         <div className="mt-2 space-y-1">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-heading font-bold text-xl text-foreground tracking-tight group-hover:text-primary transition-colors duration-300 truncate pr-4">
+              <h3 className="font-heading font-bold text-xl text-white tracking-tight group-hover:text-primary transition-colors duration-300 truncate pr-4">
                 {store.name}
               </h3>
-              <p className="text-sm text-muted-foreground font-medium flex items-center gap-1">
+              <p className="text-sm text-gray-400 font-medium flex items-center gap-1">
                 @{store.slug}
               </p>
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground/80 line-clamp-2 h-10 leading-relaxed pt-2">
+          <p className="text-sm text-gray-400 line-clamp-2 h-10 leading-relaxed pt-2">
             {store.description ||
               "A premier destination for quality products and exceptional service."}
           </p>
@@ -133,20 +133,20 @@ export function StoreCard({ store }: StoreCardProps) {
       <CardContent className="px-5 py-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-muted/10 border border-white/5 rounded-xl p-2.5 flex flex-col justify-center items-center text-center group/stat hover:bg-muted/20 transition-colors">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">
+            <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">
               Category
             </span>
-            <span className="text-sm font-bold text-foreground truncate w-full px-1">
+            <span className="text-sm font-bold text-white truncate w-full px-1">
               {store.category?.name || "Uncategorized"}
             </span>
           </div>
           <div className="bg-muted/10 border border-white/5 rounded-xl p-2.5 flex flex-col justify-center items-center text-center group/stat hover:bg-muted/20 transition-colors">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">
+            <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">
               Owner
             </span>
             <div className="flex items-center gap-1.5 max-w-full">
               <User size={12} className="text-primary" />
-              <span className="text-sm font-bold text-foreground truncate">
+              <span className="text-sm font-bold text-white truncate">
                 {store.user?.name ? store.user.name.split(" ")[0] : "Admin"}
               </span>
             </div>

@@ -1,0 +1,1 @@
+ALTER TABLE "verifications" DROP COLUMN "nic_url";

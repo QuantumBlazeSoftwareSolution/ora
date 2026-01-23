@@ -1,0 +1,1 @@
+ALTER TABLE "business_applications" DROP COLUMN "nic_url";

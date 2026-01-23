@@ -21,7 +21,8 @@ export const businessApplications = pgTable("business_applications", {
   subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
 
   // Verification Documents
-  nicUrl: text("nic_url"),
+  // Verification Documents
+  nicUrls: text("nic_urls").array(), // Array of URLs [front, back]
   businessRegUrl: text("business_reg_url"),
 
   // Status
