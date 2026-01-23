@@ -28,7 +28,7 @@ export default function BusinessLoginPage() {
       setError(result.error);
       setLoading(false);
     } else {
-      if (result?.role === "merchant" || result?.role === "admin") {
+      if (result?.role === "merchant") {
         router.push("/business/dashboard");
       } else {
         setError("Access denied. Not a merchant account.");
