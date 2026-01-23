@@ -26,6 +26,7 @@ import { getSubscriptions } from "@/app/actions/subscriptions";
 import { submitBusinessApplication } from "@/app/actions/applications";
 import { getCategories } from "@/app/actions/categories";
 import { FileUpload } from "@/components/ui/file-upload";
+import { checkStoreAvailability } from "@/app/actions/onboarding";
 
 // --- Validation Schemas --- //
 const step1Schema = z.object({
@@ -58,6 +59,20 @@ type FormData = z.infer<typeof step1Schema> &
 
 const ITEMS_PER_PAGE = 6;
 
+// Debounce hook helper
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function RegisterWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -69,6 +84,11 @@ export default function RegisterWizard() {
 
   // Category Pagination
   const [categoryPage, setCategoryPage] = useState(0);
+
+  // Slug Availability State
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [slugError, setSlugError] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -127,9 +147,45 @@ export default function RegisterWizard() {
   };
 
   const onStep2Submit = (data: Partial<FormData>) => {
+    if (slugAvailable === false) {
+      toast.error("Please choose an available Store URL");
+      return;
+    }
     setFormData((prev) => ({ ...prev, ...data }));
     setStep(3);
   };
+
+  // Real-time Slug Check Effect
+  const currentSlug = form2.watch("storeSlug");
+  const debouncedSlug = useDebounce(currentSlug, 500);
+
+  useEffect(() => {
+    async function check() {
+      if (!debouncedSlug || debouncedSlug.length < 2) {
+        setSlugAvailable(null);
+        setSlugError("");
+        return;
+      }
+
+      // Regex check locally first
+      if (!/^[a-z0-9-]+$/.test(debouncedSlug)) {
+        setSlugAvailable(false);
+        setSlugError("Invalid characters");
+        return;
+      }
+
+      setSlugChecking(true);
+      setSlugError("");
+
+      const result = await checkStoreAvailability(debouncedSlug);
+      setSlugChecking(false);
+      setSlugAvailable(result.available);
+      if (!result.available) {
+        setSlugError(result.error || "Unavailable");
+      }
+    }
+    check();
+  }, [debouncedSlug]);
 
   const onStep3Submit = () => {
     if (!nicFrontUrl || !nicBackUrl) {
@@ -354,16 +410,49 @@ export default function RegisterWizard() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Store URL
                   </label>
-                  <div className="flex items-center">
-                    <span className="bg-gray-100 border border-r-0 border-gray-200 px-3 py-3 rounded-l-xl text-gray-500 text-sm">
-                      ora.lk/
-                    </span>
-                    <input
-                      {...form2.register("storeSlug")}
-                      className="flex-1 px-4 py-3 rounded-r-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                      placeholder="my-store"
-                    />
+                  <div className="relative">
+                    <div className="flex items-center">
+                      <span className="bg-gray-100 border border-r-0 border-gray-200 px-3 py-3 rounded-l-xl text-gray-500 text-sm">
+                        ora.lk/
+                      </span>
+                      <input
+                        {...form2.register("storeSlug")}
+                        className={`flex-1 px-4 py-3 rounded-r-xl border focus:ring-2 focus:border-transparent outline-none transition-all ${
+                          slugAvailable === false
+                            ? "border-red-300 focus:ring-red-200"
+                            : slugAvailable === true
+                              ? "border-green-300 focus:ring-green-200"
+                              : "border-gray-200 focus:ring-purple-500"
+                        }`}
+                        placeholder="my-store"
+                        autoComplete="off"
+                      />
+                    </div>
+
+                    {/* Status Indicator */}
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {slugChecking && (
+                        <Loader2
+                          size={16}
+                          className="animate-spin text-gray-400"
+                        />
+                      )}
+                      {!slugChecking && slugAvailable === true && (
+                        <CheckCircle size={16} className="text-green-500" />
+                      )}
+                      {!slugChecking && slugAvailable === false && (
+                        <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">
+                          Taken
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  {/* Validation Message */}
+                  {!slugChecking && slugError && (
+                    <p className="text-red-500 text-xs mt-1 ml-1">
+                      {slugError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Category Selection Grid */}
@@ -474,7 +563,12 @@ export default function RegisterWizard() {
 
                 <button
                   type="submit"
-                  className="w-full h-14 bg-gray-900 text-white font-bold rounded-xl mt-4 hover:bg-black transition-all"
+                  disabled={!slugAvailable || slugChecking}
+                  className={`w-full h-14 font-bold rounded-xl mt-4 transition-all ${
+                    !slugAvailable || slugChecking
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-gray-900 text-white hover:bg-black"
+                  }`}
                 >
                   Next Step
                 </button>
