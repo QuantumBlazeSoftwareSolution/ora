@@ -19,6 +19,11 @@ export const stores = pgTable("stores", {
   status: storeStatusEnum("status").default("pending").notNull(),
   subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
 
+  // Verification & Theming
+  nicUrls: text("nic_urls").array(),
+  businessRegUrl: text("business_reg_url"),
+  themeColor: text("theme_color").default("#7e22ce"), // Default purple
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

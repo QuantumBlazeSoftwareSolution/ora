@@ -115,6 +115,8 @@ export async function approveApplication(applicationId: string) {
         categoryId: app.categoryId!,
         status: "approved",
         subscriptionId: app.subscriptionId!,
+        nicUrls: app.nicUrls,
+        businessRegUrl: app.businessRegUrl,
       })
       .returning();
 
