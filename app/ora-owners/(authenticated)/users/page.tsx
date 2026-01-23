@@ -46,9 +46,7 @@ export default async function UsersPage() {
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === "admin"
-                        ? "bg-destructive/10 text-destructive"
-                        : user.role === "merchant"
+                      user.role === "merchant"
                         ? "bg-primary/10 text-primary"
                         : "bg-muted text-muted-foreground"
                     }`}
