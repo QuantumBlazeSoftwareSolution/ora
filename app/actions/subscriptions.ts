@@ -33,6 +33,9 @@ const INITIAL_PLANS = [
       "Standard Support",
     ],
     highlight: false,
+    productLimit: 5,
+    serviceLimit: 2,
+    bookingLimit: 0,
   },
   {
     name: "Growth",
@@ -47,6 +50,9 @@ const INITIAL_PLANS = [
       "Social Media Integration",
     ],
     highlight: true,
+    productLimit: 50,
+    serviceLimit: 10,
+    bookingLimit: 100,
   },
   {
     name: "Empire",
@@ -62,6 +68,9 @@ const INITIAL_PLANS = [
       "Dedicated Account Manager",
     ],
     highlight: false,
+    productLimit: -1, // Unlimited
+    serviceLimit: -1,
+    bookingLimit: -1,
   },
 ];
 
@@ -73,6 +82,9 @@ export async function updateSubscription(
     description: string;
     features: string[];
     highlight: boolean;
+    productLimit: number;
+    serviceLimit: number;
+    bookingLimit: number;
   },
 ) {
   try {
@@ -84,6 +96,9 @@ export async function updateSubscription(
         description: data.description,
         features: data.features,
         highlight: data.highlight,
+        productLimit: data.productLimit,
+        serviceLimit: data.serviceLimit,
+        bookingLimit: data.bookingLimit,
       })
       .where(eq(subscriptions.id, id));
 
@@ -111,6 +126,9 @@ export async function resetSubscription(id: string, slug: string) {
         description: initialPlan.description,
         features: initialPlan.features,
         highlight: initialPlan.highlight,
+        productLimit: initialPlan.productLimit,
+        serviceLimit: initialPlan.serviceLimit,
+        bookingLimit: initialPlan.bookingLimit,
       })
       .where(eq(subscriptions.id, id));
 

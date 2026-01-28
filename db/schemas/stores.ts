@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
-import { storeStatusEnum } from "./enum-types";
+import { storeStatusEnum, storeTypeEnum } from "./enum-types";
 import { categories } from "./categories";
 import { subscriptions } from "./subscriptions";
 
@@ -17,6 +17,7 @@ export const stores = pgTable("stores", {
   logoUrl: text("logo_url"),
   phoneNumber: text("phone_number"), // WhatsApp Number
   status: storeStatusEnum("status").default("pending").notNull(),
+  storeType: storeTypeEnum("store_type").default("retail").notNull(),
   subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
 
   // Verification & Theming

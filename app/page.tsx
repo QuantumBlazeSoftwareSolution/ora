@@ -16,6 +16,12 @@ export default function Home() {
 
         <div className="flex items-center gap-8">
           <Link
+            href="/explore"
+            className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
+          >
+            Explore
+          </Link>
+          <Link
             href="/login"
             className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
           >
@@ -45,7 +51,7 @@ export default function Home() {
               </p>
             </div>
             <Link
-              href="#"
+              href="/explore"
               className="hidden md:block text-sm font-bold underline decoration-2 underline-offset-4"
             >
               View All
@@ -55,7 +61,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
               <div key={i} className="group cursor-pointer">
-                <div className="aspect-[3/4] bg-gray-100 rounded-[2rem] mb-6 overflow-hidden relative shadow-sm transition-all duration-500 hover:shadow-2xl">
+                <div className="aspect-3/4 bg-gray-100 rounded-[2rem] mb-6 overflow-hidden relative shadow-sm transition-all duration-500 hover:shadow-2xl">
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />{" "}
                     4.9

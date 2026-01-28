@@ -27,5 +27,8 @@ export const storeStatusEnum = pgEnum("store_status", storeStatus);
 export const subscriptionPlans = ["starter", "growth", "empire"] as const;
 export const subscriptionPlanEnum = pgEnum(
   "subscription_plan",
-  subscriptionPlans
+  subscriptionPlans,
 );
+
+export const storeTypes = ["retail", "service", "booking", "hybrid"] as const;
+export const storeTypeEnum = pgEnum("store_type", storeTypes);

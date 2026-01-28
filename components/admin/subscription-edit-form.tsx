@@ -37,6 +37,9 @@ interface Subscription {
   description: string | null;
   features: string[] | null;
   highlight: boolean | null;
+  productLimit: number | null;
+  serviceLimit: number | null;
+  bookingLimit: number | null;
 }
 
 interface FeatureItem {
@@ -53,6 +56,9 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
   const [price, setPrice] = useState(plan.price);
   const [description, setDescription] = useState(plan.description || "");
   const [highlight, setHighlight] = useState(plan.highlight || false);
+  const [productLimit, setProductLimit] = useState(plan.productLimit || 0);
+  const [serviceLimit, setServiceLimit] = useState(plan.serviceLimit || 0);
+  const [bookingLimit, setBookingLimit] = useState(plan.bookingLimit || 0);
 
   // Initialize features with IDs for drag and drop stability
   const [features, setFeatures] = useState<FeatureItem[]>(
@@ -86,6 +92,9 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
         description,
         features: features.map((f) => f.text),
         highlight,
+        productLimit,
+        serviceLimit,
+        bookingLimit,
       };
 
       const res = await updateSubscription(plan.id, payload);
@@ -155,6 +164,95 @@ export function SubscriptionEditForm({ plan }: { plan: Subscription }) {
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
                 required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Product Limit</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-products"
+                    checked={productLimit === -1}
+                    onCheckedChange={(checked) =>
+                      setProductLimit(checked ? -1 : 0)
+                    }
+                  />
+                  <Label
+                    htmlFor="unlimited-products"
+                    className="text-xs font-normal text-muted-foreground cursor-pointer"
+                  >
+                    Unlimited
+                  </Label>
+                </div>
+              </div>
+              <Input
+                type="number"
+                value={productLimit === -1 ? "" : productLimit}
+                onChange={(e) => setProductLimit(Number(e.target.value))}
+                min={0}
+                disabled={productLimit === -1}
+                placeholder={productLimit === -1 ? "Unlimited" : "0"}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Service Limit</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-services"
+                    checked={serviceLimit === -1}
+                    onCheckedChange={(checked) =>
+                      setServiceLimit(checked ? -1 : 0)
+                    }
+                  />
+                  <Label
+                    htmlFor="unlimited-services"
+                    className="text-xs font-normal text-muted-foreground cursor-pointer"
+                  >
+                    Unlimited
+                  </Label>
+                </div>
+              </div>
+              <Input
+                type="number"
+                value={serviceLimit === -1 ? "" : serviceLimit}
+                onChange={(e) => setServiceLimit(Number(e.target.value))}
+                min={0}
+                disabled={serviceLimit === -1}
+                placeholder={serviceLimit === -1 ? "Unlimited" : "0"}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Booking Limit</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-bookings"
+                    checked={bookingLimit === -1}
+                    onCheckedChange={(checked) =>
+                      setBookingLimit(checked ? -1 : 0)
+                    }
+                  />
+                  <Label
+                    htmlFor="unlimited-bookings"
+                    className="text-xs font-normal text-muted-foreground cursor-pointer"
+                  >
+                    Unlimited
+                  </Label>
+                </div>
+              </div>
+              <Input
+                type="number"
+                value={bookingLimit === -1 ? "" : bookingLimit}
+                onChange={(e) => setBookingLimit(Number(e.target.value))}
+                min={0}
+                disabled={bookingLimit === -1}
+                placeholder={bookingLimit === -1 ? "Unlimited" : "0"}
               />
             </div>
           </div>

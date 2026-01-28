@@ -17,6 +17,9 @@ export const subscriptions = pgTable("subscriptions", {
   description: text("description"),
   features: jsonb("features").$type<string[]>(), // Array of feature strings
   highlight: boolean("highlight").default(false), // Logic for "Most Popular"
+  productLimit: integer("product_limit").default(0),
+  serviceLimit: integer("service_limit").default(0),
+  bookingLimit: integer("booking_limit").default(0),
   updatedAt: text("updated_at"), // Using text for simplicity or timestamp if preferred, generally consistent with others
 });
 

@@ -2,45 +2,46 @@
 
 ## 0. Origin & User Vision
 
-**The Gap:** Sri Lanka has a huge crowd of small business owners (Gift box businesses, Artwork, Salons, Appointment scheduling) who don't know how to navigate the online market, resulting in a lost customer base.
-**The Solution:** A SaaS web application designed specifically to fill this gap, enabling these businesses to easily go online without technical knowledge.
+**The Gap:** Sri Lanka has a huge crowd of small business owners (Gift box businesses, Artwork, Salons, Appointment scheduling, Event Halls) who don't know how to navigate the online market. Generic e-commerce sites don't fit a Salon or a Hall Booking.
+**The Solution:** A **Business Presence Platform** (not just a shop) designed to adapt to the business type, enabling these businesses to easily go online in under 10 minutes.
 
 ## 1. Executive Summary
 
 **Vision:** Democratize digital commerce for Sri Lankan Micro, Small, and Medium Enterprises (MSMEs).
-**Mission:** Empower non-technical business owners (Gift shops, Salons, Artists) to go online in under 10 minutes.
+**Mission:** Empower non-technical business owners to go online with an interface that matches their business model (Retail vs Service vs Booking).
 **Core Value:** A professional "Link-in-bio" store + Service Booking engine that bridges the gap between a website and WhatsApp conversational commerce.
 
-## 2. Core Features
+## 2. Core Features (The "Tri-Type" Engine)
 
-### A. Storefront (Products)
+We categorize businesses into three distinct types to offer the perfect UI:
 
-- **Public Page**: `ora.lk/[store_name]`
-- **Product Catalog**: Images, Price, Description.
-- **Shopping Cart**: Floating cart for mobile-first experience.
-- **WhatsApp Checkout**: Instead of a complex payment gateway, the cart generates a pre-formatted WhatsApp message sent directly to the merchant.
-  - _Message Format_: "Hello [Store], I want to buy: Item A (x2), Item B. Total: LKR 5000."
+### A. Retail Engine (Products)
 
-### B. Service & Booking Engine (Services)
+- **For**: Gift shops, Clothing, Electronics.
+- **Key Entity**: `Product` (Physical Good).
+- **Flow**: Browse -> Add to Cart -> WhatsApp Checkout / Payment.
+- **UI Vibe**: Visual Grid, Collections, "Shop" feel.
 
-- **Target Audience**: Salons, Consultants, Tutors.
-- **Service Menu**: List services with Duration and Price.
-- **Booking Flow**: Customers select services -> "Request Booking" via WhatsApp (MVP) or dedicated Calendar logic (Phase 2).
+### B. Service Engine (Appointments)
 
-### C. Admin Dashboard ("The Command Center")
+- **For**: Salons, Tutors, Consultants, Spas.
+- **Key Entity**: `Appointment` (Time Service).
+- **Flow**: View Portfolio -> Select Service -> Pick Time Slot -> Confirm.
+- **UI Vibe**: Clean, Trust-driven, Calendar-focused.
 
-- **Analytics**: Real-time view of Profile Views, WhatsApp Clicks, Booking Requests, and Platform-wide growth.
-- **Product Hub**: Add/Edit/Delete products with "In Stock" toggles.
-- **Service Suite**: Manage Service Menu, Durations, and Pricing.
-- **Booking Manager**: Calendar/List view of upcoming appointments (for Salons/Tutors).
+### C. Booking Engine (Assets/Events)
+
+- **For**: Wedding Halls, Hotels, Equipment Rentals, Ticketed Events.
+- **Key Entity**: `Booking` (Space/Resource).
+- **Flow**: Check Availability -> Select Dates/Seats -> Reserve.
+- **UI Vibe**: Date-picker, Capacity management, "Reservation" feel.
+
+### D. Admin Dashboard ("The Command Center")
+
+- **Unified View**: Regardless of type, the admin sees "Orders", "Appointments", or "Bookings" in a unified inbox.
+- **Analytics**: Tracks Revenue (Retail), Occupancy (Bookings), and Utilization (Services).
 - **Store Settings**:
-  - **Profile**: Logo, Cover Image, Bio, Contact Info.
-  - **Hours**: Operating hours configuration.
-  - **Subscription**: View current plan and upgrade options.
-- **Platform Management (Super Admin)**:
-  - **Category Management**: CRUD operations for business categories.
-  - **Global Analytics**: "Track Everything" - Revenue, User Growth, Store Performance.
-  - **Reports**: Downloadable reports for transactions and system health.
+  - **Biz Type Toggle**: Merchant selects "Retail", "Service", or "Hybrid". The UI adapts automatically.
 
 ## 3. Technology Stack
 
@@ -69,67 +70,53 @@
 
 - `id`: Firebase UID (PK)
 - `email`: Merchant email
-- `name`: Merchant name
 - `role`: merchant | admin
 
 ### Stores (`stores`)
 
-- `id`: Serial PK
 - `userId`: FK to Users
 - `slug`: Unique URL identifier
 - `name`: Display Name
-- `status`: pending | active | rejected
-- `subscriptionId`: FK to Subscriptions
-
-### Subscriptions (`subscriptions`)
-
-- `id`: Serial PK
-- `name`: Text (e.g. "Growth")
-- `price`: Integer
-- `features`: JSONB
-- `highlight`: Boolean
+- `storeType`: 'retail' | 'service' | 'booking' | 'hybrid' (New Field)
 
 ### Products (`products`)
 
 - `storeId`: FK to Stores
-- `name`, `price`, `description`
-- `imageUrl`: Firebase Storage URL
+- `name`, `price`, `description`, `imageUrl`
 
 ### Services (`services`)
 
 - `storeId`: FK to Stores
 - `name`, `price`, `durationMin`
-- `description`
 
-### Bookings (`bookings`) / Orders (`orders`)
+### Appointments (`appointments`)
 
-- _Note_: In the MVP, orders are handled via WhatsApp. The DB tables exist for future "On-Platform" tracking and analytics mastery.
+- `storeId`, `serviceId`, `customerId`, `startTime`, `endTime`, `status`
+
+### Bookings (`bookings`)
+
+- `storeId`, `resourceId`, `customerId`, `startDate`, `endDate`, `status`
 
 ## 5. Key Workflows
 
-### Onboarding (Revised)
+### Explore Page (The Discovery Engine)
 
-1.  **Application**: User fills "Business Registration" form (No password needed). Data saved to `business_applications`.
-2.  **Review**: Admin views application in `/ora-owners` dashboard.
-3.  **Approval**: Admin approves application. System creates `User` (Merchant) + `Store`. System generates credentials (or invite link).
-4.  **Live**: Store becomes active.
-
-### Checkout Flow
-
-1.  Customer visits `ora.lk/cool-gifts`.
-2.  Adds "Red Mug" to Cart.
-3.  Clicks "Checkout on WhatsApp".
-4.  System opens `wa.me/9477...` with the order details pre-filled.
+- **Goal**: Addictive discovery without clutter.
+- **Strategy**: Distinct "Channels" for Shopping vs Booking. Use "Vibes" (Top-level categories) to guide intent.
+- **Components**:
+  - **Spotlight**: High-quality featured item/service.
+  - **Discovery Header**: Dynamic shuffle of 5 categories to encourage clicking.
+  - **Smart Grid**: Bento-style layout for visual engagement.
 
 ## 6. Future Roadmap
 
 - **Custom Domains**: Allow `myshop.com` mapping.
 - **SMS Integration**: Automated booking reminders.
-- **Local Payment Gateways**: PayHere / WebXPay integration for direct payments.
+- **Local Payment Gateways**: PayHere / WebXPay integration.
 - **Inventory Tracking**: Deduct stock automatically.
 
 ## 7. Development Guidelines
 
-- **Zero Cost Phase**: Everything runs on free tiers (Neon Free, Firebase Spark, Vercel/VPS).
+- **Zero Cost Phase**: Everything runs on free tiers.
 - **Mobile First**: All UI designs must be verified on mobile width first.
-- **Simplicity**: If a feature takes more than 3 clicks, it's too complex for this market.
+- **Differentiation**: Always ask "Is this a Product flow or a Service flow?" before coding. Don't force one into the other.

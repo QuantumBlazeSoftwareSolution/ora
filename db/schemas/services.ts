@@ -18,6 +18,7 @@ export const services = pgTable("services", {
   description: text("description"),
   durationMin: integer("duration_min").notNull(), // e.g., 60 mins
   price: decimal("price").notNull(),
+  imageUrl: text("image_url"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
